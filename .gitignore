@@ -1,0 +1,52 @@
+# gitignore for MPIC_CAMDRIVER_APP
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.obj
+*.uxf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Cmake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# Executables
+*.out
+*.app
+
+# Out folder
+*.log
+out/
+build_app
+build_test
+image_prod*
+
+# Other
+.vscode
+.vscode/*
+.qtc_clangd/*
+.idea
+__pycache__
+cscope.*
+README_MY_MPIC.md
+misc.sh
+.vim-bookmarks
+
+# Temporary
+src
+game
