@@ -82,16 +82,16 @@ DOCKER_IMAGE_FULL_NAME="jfrog.luktec.com/docker_images/${PROJECT_NAME}"
 PATH_PROJECT_ROOT=${__curr_dir}
 
 # Docker container home directory path
-HOME_DIR="/home/luk6xff"
-DOCKER_PROJECT_ROOT="${HOME_DIR}/Projects/${PROJECT_NAME}"
+HOME_DIR="/home/${__user}"
+DOCKER_PROJECT_ROOT="${HOME_DIR}"
 [[ -n "${JENKINS_URL+x}" ]] && DOCKER_PROJECT_ROOT="${WORKSPACE}"
 
 # QNX paths
 PATH_QNX_DIR="QNX"
 PATH_QNX_LICENSE=".qnx"
 PATH_APPLICATION="MyApp"
-PATH_DOCKER="CI"
-PATH_QNX_HLOS_DEV="${DOCKER_PROJECT_ROOT}/${PATH_QNX_DIR}/sa8295p-hqx-1-0_hlos_dev_qnx"
+PATH_DOCKER="ci"
+PATH_QNX_HLOS_DEV="${DOCKER_PROJECT_ROOT}/${PATH_QNX_DIR}/hlos_dev_qnx"
 PATH_QNX_SDP710="${HOME_DIR}/qnx710" # this path exists inside of the docker image
 PATH_QNX_USER="${DOCKER_PROJECT_ROOT}/${PATH_QNX_DIR}/luktec"
 
@@ -101,7 +101,7 @@ BUILD_CMD=${ENTRY_CMD}
 ATTACH_TO='-i -a stdin -a stdout -a stderr'
 
 # QNX build commands
-BUILD_QNX_SET_ENV_CMD="cd ${PATH_QNX_HLOS_DEV}/apps/qnx_ap && source setenv_hyp710.sh --external ${PATH_QNX_SDP710} --mpic ${DOCKER_PROJECT_ROOT}/${PATH_APPLICATION} && source ${PATH_QNX_SDP710}/qnxsdp-env.sh"
+BUILD_QNX_SET_ENV_CMD="cd ${PATH_QNX_HLOS_DEV}/apps/qnx_ap && source setenv_hyp710.sh --external ${PATH_QNX_SDP710} --app ${DOCKER_PROJECT_ROOT}/${PATH_APPLICATION} && source ${PATH_QNX_SDP710}/qnxsdp-env.sh"
 
 cmake_make_command() {
 	TOOLCHAINS=("Toolchain_qnx-aarch64le.cmake" "Toolchain_x86_64.cmake")
@@ -131,7 +131,7 @@ cmake_make_command() {
 			"-v"|"--coverity")
 				COVERITY="ON";;
 			"-u"|"--unit-tests")
-				TESTS_OPTION="-DMPIC_CAMDRIVER_UNIT_TESTS=ON"; MAKE_TARGET="tests"; MAKE_COVERAGE=1; TOOLCHAIN="${TOOLCHAINS[1]}";;
+				TESTS_OPTION="-DPROJECT_UNIT_TESTS=ON"; MAKE_TARGET="tests"; MAKE_COVERAGE=1; TOOLCHAIN="${TOOLCHAINS[1]}";;
 			"--run-tests")
 				CTEST_RUN=1; MAKE_COVERAGE=0;
 				if [ $# -gt 1 ]; then
@@ -141,9 +141,9 @@ cmake_make_command() {
 					TEST_MODULES="${1}"
 				fi;;
 			"-it"|"--integration-tests")
-				TESTS_OPTION="-DMPIC_CAMDRIVER_INTEGRATION_TESTS=ON";;
+				TESTS_OPTION="-DPROJECT_INTEGRATION_TESTS=ON";;
 			"-qt"|"--qualification-tests")
-				TESTS_OPTION="-DMPIC_CAMDRIVER_QUALIFICATION_TESTS=ON";;
+				TESTS_OPTION="-DPROJECT_QUALIFICATION_TESTS=ON";;
 			"--kpi")
 				KPI_MARKERS="ON"
 
@@ -155,16 +155,13 @@ cmake_make_command() {
 		exit 1
 	fi
 
-	FLAGS="-DCMAKE_BUILD_TYPE=Release -DMPIC_PROJECT_TARGET=${PROJECT} -DTBEasyOn=${EASY_ON} -DTBMinimalMode=${MINIMAL_MODE} -DTBFactoryMode=${FACTORY_MODE} -DCOVERITY_BUILD=${COVERITY} -DKPI_MARKERS=${KPI_MARKERS} ${TESTS_OPTION} -DCMAKE_TOOLCHAIN_FILE=../cmake/${TOOLCHAIN}"
+	FLAGS="-DCMAKE_BUILD_TYPE=Release -DPROJECT_TARGET=${PROJECT}-DTBFactoryMode=${FACTORY_MODE} -DCOVERITY_BUILD=${COVERITY} -DKPI_MARKERS=${KPI_MARKERS} ${TESTS_OPTION} -DCMAKE_TOOLCHAIN_FILE=../cmake/${TOOLCHAIN}"
 	MAKE_CMD="make -j4 && make ${MAKE_TARGET}"
 	if [[ $CTEST_RUN -ne 0 ]]; then
 		MAKE_CMD="make -j4 && ctest -j4 --verbose -R ${TEST_MODULES}"
 	fi
 	if [[ $MAKE_COVERAGE -ne 0 ]]; then
 		MAKE_CMD=" ${MAKE_CMD} && make code_coverage"
-	fi
-	if [[ $PATH_PARTNER -eq 1 ]]; then
-		FLAGS="${FLAGS} -DPATHPARTNER_BUILD=ON"
 	fi
 	echo "cmake ${FLAGS} .. && ${MAKE_CMD}"
 }
@@ -211,7 +208,7 @@ build_qnx() {
 	else
 		BUILD_CMD="cd ${QNX_DIR} && make"
 	fi
-	CLEAN_CMD="cd ${QNX_DIR} && make clean && cd ${PATH_QNX_USER} && rm -rf image_prod && rm -rf pp_mpic_sw* && ./mpic_qnx_cleaner.sh"
+	CLEAN_CMD="cd ${QNX_DIR} && make clean && cd ${PATH_QNX_USER} && rm -rf image_prod && ./project_cleaner.sh"
 
 	if [[ $CLEAN_ONLY -eq 1 ]]; then
 		CMD="${CLEAN_CMD}"
@@ -264,7 +261,7 @@ build_command(){
 		esac
 	done
 
-	if [[ -z "${PROJECT_TAG}" ]] && [[ $QCL -eq 0 ]] && [[ $CHI -eq 0 ]] && [[ $AIS -eq 0 ]] && [[ $QNX_CLEAN -eq 0 ]] && [[ $QNX_CREATE_IMAGE -eq 0 ]]; then
+	if [[ -z "${PROJECT_TAG}" ]] && [[ $QNX_CLEAN -eq 0 ]] && [[ $QNX_CREATE_IMAGE -eq 0 ]]; then
 		echo -e "Choose project"
 		exit 1
 	fi
@@ -304,7 +301,7 @@ DOCKER_TAG_TO_PULL="0.4" # this is used by CI to build UTs and will need to be c
 
 # Check if PATH_PROJECT_ROOT path exists
 [ -d "${PATH_PROJECT_ROOT}" ] &&  echo "Directory ${PATH_PROJECT_ROOT} found." || {
-	echo "Directory ${PATH_PROJECT_ROOT} not found. Please pass a valid MPIC repositories directory path!"
+	echo "Directory ${PATH_PROJECT_ROOT} not found. Please pass a valid project directory path!"
 	usage
 	exit 1
 }
@@ -380,13 +377,13 @@ handle_term()
 }
 
 pull_image(){
-    echo 'Provide NetId and Password to login to jfrog.luktec.com'
-    read -p "NetId: " netid
+    echo 'Provide Id and Password to login to jfrog.luktec.com'
+    read -p "Id: " id
     read -sp "Password: " passvar
     echo
     echo "Logging to docker registry at jfrog.luktec.com"
-    echo ${passvar} | docker login -u ${netid} --password-stdin jfrog.luktec.com
-    echo "Pulling mpic image..."
+    echo ${passvar} | docker login -u ${id} --password-stdin jfrog.luktec.com
+    echo "Pulling ${PROJECT_NAME} image..."
     out=$( docker pull ${DOCKER_IMAGE_FULL_NAME}:${DOCKER_TAG_TO_PULL} || echo "Failed")
 	if [[ "$out" =~ .*"Status: Downloaded newer image for".* ]] ; then
 		return 0
@@ -425,25 +422,25 @@ _main() {
 	else
 		echo -e "Image not found, pulling image from jfrog.luktec.com"
 		set +e # pull image might fail, if so, fallback to building image locally
-		pull_image
-		res=$?
+		#pull_image
+		#res=$?
+		res=1
 		if [[ $res == 0 ]]; then
 			docker image tag ${DOCKER_IMAGE_FULL_NAME}:${DOCKER_TAG_TO_PULL} ${DOCKER_IMG}:${DOCKER_TAG}
 		else
 			echo "Pull  failed, attempting to build image from Dockerfile"
-			read -p "Provide path to QNX sdp (relative to CI directory, should be placed in CI directory)" sdp_path
+			#read -p "Provide path to QNX sdp (relative to CI directory, should be placed in CI directory)" sdp_path
 			docker build	-t ${DOCKER_IMG}:${DOCKER_TAG}            \
-						--build-arg USER_ID=$(id -u)              \
-						--build-arg GROUP_ID=$(id -g)             \
-						--build-arg LOCAL_SDP_PATH=${sdp_path}    \
-						-f ${DOCKER_DIR}/Dockerfile_${DOCKER_IMG} \
+						--build-arg USERNAME=${__user}              \
+						--build-arg USER_UID=$(id -u)              \
+						--build-arg USER_GID=$(id -g)             \
+						-f ${DOCKER_DIR}/Dockerfile \
 						${DOCKER_DIR}
 			echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been built successfully! <<<"
 		fi
 		set -e
 	fi
 
-	# Run docker container
 	echo >&2 "Running ${DOCKER_IMG_TO_RUN} docker container..."
 
 	if [[ -f ${MISC_FILE} ]]; then
@@ -452,15 +449,22 @@ _main() {
 
 	trap 'handle_term' EXIT INT TERM
 	docker run -ti --rm ${ATTACH_TO} -u $(id -u):$(id -g) \
+		--name ${PROJECT_NAME} \
+		--privileged \
+		--security-opt apparmor=unconfined \
+		--group-add=dialout \
+		--net=host \
+		--log-opt max-size=10m \
+		--log-opt max-file=2 \
+		-e APPS_REVISION=$(git describe --always --long --abbrev=16) \
+		-e APPS_IMAGE_VERSION=${DOCKER_IMG}:${DOCKER_TAG} \
 		-e DISPLAY=$DISPLAY \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		-v ~/.ssh:/home/luk6xff/.ssh \
 		-v ${PATH_PROJECT_ROOT}:${DOCKER_PROJECT_ROOT} \
-		-v ~/${PATH_QNX_LICENSE}:${HOME_DIR}/${PATH_QNX_LICENSE} \
-		-v /etc/services:/etc/services \
 		-v /etc/hosts:/etc/hosts \
-		--name ${PROJECT_NAME} \
-		${DOCKER_IMG_TO_RUN}:${DOCKER_TAG} ${ENTRY_CMD} -c "${BUILD_QNX_SET_ENV_CMD} && ${BUILD_CMD}"
+		${DOCKER_IMG_TO_RUN}:${DOCKER_TAG} ${ENTRY_CMD} -c "${BUILD_CMD}"
+		#${DOCKER_IMG_TO_RUN}:${DOCKER_TAG} ${ENTRY_CMD} -c "${BUILD_QNX_SET_ENV_CMD} && ${BUILD_CMD}"
 	trap - EXIT INT TERM
 
 	if [[ -f ${MISC_FILE} ]]; then
@@ -470,12 +474,12 @@ _main() {
 	exit 0
 }
 
-_main_jenkins() {
+_main_ci() {
 	${ENTRY_CMD} -c "${BUILD_QNX_SET_ENV_CMD} && ${BUILD_CMD}"
 }
 
 if [[ -z "${JENKINS_URL+x}" ]]; then
 	_main
 else
-	_main_jenkins
+	_main_ci
 fi

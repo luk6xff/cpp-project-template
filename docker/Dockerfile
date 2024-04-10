@@ -45,7 +45,6 @@ apt-get autoremove -y \
 # Set envs
 ENV DEBIAN_FRONTEND noninteractive
 
-COPY services /etc/services
 
 ################################################################################
 # Install LUK6xFF mandatory packages
@@ -120,7 +119,7 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
 
 
 ################################################################################
-# Install additional packages
+# Install additional packages required for your project
 ################################################################################
 RUN apt-get update -y && apt-get install --no-install-recommends -qy \
     # fastboot

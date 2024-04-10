@@ -1,4 +1,4 @@
-# gitignore for MPIC_CAMDRIVER_APP
+# gitignore for the project
 
 # Prerequisites
 *.d
@@ -43,10 +43,9 @@ image_prod*
 .idea
 __pycache__
 cscope.*
-README_MY_MPIC.md
 misc.sh
 .vim-bookmarks
-
-# Temporary
-src
-game
+*.cache
+*.bash_history
+build-scripts
+testApp

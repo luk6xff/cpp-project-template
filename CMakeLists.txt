@@ -1,11 +1,11 @@
 ################################################################################
 #
-# @copyright (c) 2023 Aptiv
+# @copyright (c) 2023 luk6xff
 #
-# @brief Cmake build system for MPIC project
+# @brief Cmake build system for luk6xff's project
 #
 # @version 1.1
-# @author Lukasz Uszko <lukasz.uszko@aptiv.com>
+# @author Lukasz Uszko <lukasz.uszko@gmail.com>
 #
 ################################################################################
 
@@ -13,7 +13,7 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 # Set Project Name
-set(CMAKE_PROJECT_NAME mpic-camdriver)
+set(CMAKE_PROJECT_NAME my_project)
 
 # Set installing PREFIX
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/output)
@@ -22,8 +22,8 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-# Supported targets in mpic project
-set(MPIC_PROJECT_TARGETS_LIST "Civic" "TigerBox")
+# Supported targets in the project
+set(PROJECT_TARGETS_LIST "App")
 
 # KPI Markers option
 option(KPI_MARKERS "Enable KPI Markers feature" ON)
@@ -32,22 +32,22 @@ option(KPI_MARKERS "Enable KPI Markers feature" ON)
 set(CMAKE_BUILD_TYPE Release)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-    "Choose the type of MPIC_CAMDRIVER_APP build, options are: Debug Release."
+    "Choose the type of the project build, options are: Debug Release."
     FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-# Apply options only for Civic
-set(CIVIC_PRODUCT_LINES "i3" "i3star3")
-if (PRODUCT_LINE IN_LIST CIVIC_PRODUCT_LINES)
-    set(MPIC_PROJECT_TARGET Civic)
+# Apply options only for QNX
+set(PRODUCT_LINES "qnx")
+if (PRODUCT_LINE IN_LIST PRODUCT_LINES)
+    set(PROJECT_TARGET QnxApp)
     add_definitions(-DQNX)
 endif()
 
 # Create project if target is valid
-if (MPIC_PROJECT_TARGET IN_LIST MPIC_PROJECT_TARGETS_LIST)
+if (PROJECT_TARGET IN_LIST PROJECT_TARGETS_LIST)
     # Set the project name
     project(
-        mpic-camdriver
+        ${CMAKE_PROJECT_NAME}
         VERSION 1.0
         LANGUAGES CXX C
     )
@@ -58,13 +58,12 @@ if (MPIC_PROJECT_TARGET IN_LIST MPIC_PROJECT_TARGETS_LIST)
         message(STATUS ">>> APP BUILD FOR COVERITY STARTED, UNRESOLVED SYMBOLS WILL BE IGNORED <<<")
     endif()
 
-    if (MPIC_CAMDRIVER_INTEGRATION_TESTS)
-        add_definitions(-DMPIC_CAMDRIVER_INTEGRATION_TESTS)
+    if (PROJECT_INTEGRATION_TESTS)
+        add_definitions(-DPROJECT_INTEGRATION_TESTS)
     endif()
 
-    add_definitions(-D${MPIC_PROJECT_TARGET})
-    add_definitions(-DAPTIV_BUILD)
-    add_subdirectory(${MPIC_PROJECT_TARGET})
+    add_definitions(-D${PROJECT_TARGET})
+    add_subdirectory(${PROJECT_TARGET})
 else()
-    message(FATAL_ERROR "MPIC_PROJECT_TARGET is not set! Please set it using -DMPIC_PROJECT_TARGET=<value>")
+    message(FATAL_ERROR "PROJECT_TARGET is not set! Please set it using -DPROJECT_TARGET=<value>")
 endif()
