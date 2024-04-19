@@ -160,7 +160,7 @@ namespace Collision
 		{
 			min = (points[0].x * axis.x + points[0].y * axis.y);
 			max = min;
-			for (int j = 1; j < points.size(); ++j)
+			for (size_t j = 1; j < points.size(); ++j)
 			{
 				auto projection = points[j].x * axis.x + points[j].y * axis.y;
 
