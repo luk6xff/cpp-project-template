@@ -11,6 +11,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 add_subdirectory(src)
 add_subdirectory(thirdparty)
 
+# include(Doxygen)
+# Doxygen(src docs)
+
 # Add test subdirectory
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
     add_subdirectory(test)

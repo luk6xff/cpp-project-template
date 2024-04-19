@@ -56,5 +56,10 @@ target_compile_features(
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 
+# Clang format
 include(ClangFormat)
 Format(${PROJECT_NAME} .)
+
+# Generate doxygen documentation
+include(Doxygen)
+Doxygen(${PROJECT_NAME} docs)
