@@ -55,3 +55,6 @@ target_compile_features(
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+
+include(ClangFormat)
+Format(${PROJECT_NAME} .)

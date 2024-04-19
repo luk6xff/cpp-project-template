@@ -4,6 +4,9 @@ project(my_project LANGUAGES CXX)
 # C++17 Standard
 set(CMAKE_CXX_STANDARD 17)
 
+# Set the cmak module path
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 # Add source subdirectories
 add_subdirectory(src)
 add_subdirectory(thirdparty)

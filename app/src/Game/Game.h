@@ -1,54 +1,72 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <memory>
-#include <array>
-#include <ctime>
-#include <cstdlib>
-#include <SFML/Graphics.hpp>
-
-#include "Background/Background.h"
 #include "Animation/Animation.h"
 #include "Animation/ExplosionEffect.h"
-#include "GameCar/GameCar.h"
-#include "Configuration/Resolution.h"
+#include "Background/Background.h"
 #include "Configuration/Difficulty.h"
+#include "Configuration/Resolution.h"
+#include "GameCar/GameCar.h"
+
+#include <SFML/Graphics.hpp>
+#include <array>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <vector>
 
 /**
  * @class Game
- * @brief Manages the main gameplay functions, integrating all components like player, enemies, and effects.
+ * @brief Manages the main gameplay functions,
+ * integrating all components like player,
+ * enemies, and effects.
  *
- * This class orchestrates the gameplay, including the game loop, event handling, and rendering. It manages game states
- * like scoring, player lives, and interactions between game elements such as collisions and movements.
+ * This class orchestrates the gameplay, including
+ * the game loop, event handling, and rendering.
+ * It manages game states like scoring, player
+ * lives, and interactions between game elements
+ * such as collisions and movements.
  */
-class Game {
+class Game
+{
 public:
     /**
-     * @brief Construct a new Game object with specified settings for resolution and difficulty.
-     * @param resolutionSetting Screen resolution settings.
-     * @param gameDifficulty Difficulty level of the game.
+     * @brief Construct a new Game object with
+     * specified settings for resolution and
+     * difficulty.
+     * @param resolutionSetting Screen resolution
+     * settings.
+     * @param gameDifficulty Difficulty level of
+     * the game.
      */
     Game(Resolution::Setting resolutionSetting, Difficulty::Level gameDifficulty);
 
     /**
-     * @brief Starts the game loop, handling all updates and rendering.
+     * @brief Starts the game loop, handling all
+     * updates and rendering.
      */
     void run();
 
 private:
-    sf::RenderWindow m_window; ///< The main window where the game is rendered.
-    uint32_t m_screenWidth; ///< Width of the screen.
-    uint32_t m_screenHeight; ///< Height of the screen.
+    sf::RenderWindow m_window; ///< The main window where the
+                               ///< game is rendered.
+    uint32_t m_screenWidth;    ///< Width of the screen.
+    uint32_t m_screenHeight;   ///< Height of the screen.
 
-    sf::Clock m_playTimeClock; ///< Clock for measuring play time.
-    sf::Time m_timePerFrame; ///< Fixed time step for each frame to ensure consistent updates.
-    float m_delta; ///< Delta time derived from time per frame.
+    sf::Clock m_playTimeClock; ///< Clock for measuring
+                               ///< play time.
+    sf::Time m_timePerFrame;   ///< Fixed time step for
+                               ///< each frame to ensure
+                               ///< consistent updates.
+    float m_delta;             ///< Delta time derived from
+                               ///< time per frame.
 
-    std::array<int, 3> m_highScores; ///< High scores for each difficulty level.
-    Difficulty::Level m_difficulty; ///< Current difficulty level of the game.
+    std::array<int, 3> m_highScores; ///< High scores for each
+                                     ///< difficulty level.
+    Difficulty::Level m_difficulty;  ///< Current difficulty
+                                     ///< level of the game.
 
     sf::Font m_font; ///< Font used for rendering text.
 
@@ -69,19 +87,25 @@ private:
     sf::Text m_restartText;
     sf::Text m_timeText;
 
-    std::unique_ptr<Background> m_background; ///< Background of the game.
-    std::unique_ptr<GameCar> m_player; ///< Player's car.
-    std::vector<GameCar> m_enemies; ///< List of enemy cars.
-    std::vector<sf::Sprite> m_playerBullets; ///< Player's bullets on screen.
-    std::vector<sf::Sprite> m_enemyBullets; ///< Enemy bullets on screen.
+    std::unique_ptr<Background> m_background;  ///< Background of the game.
+    std::unique_ptr<GameCar> m_player;         ///< Player's car.
+    std::vector<GameCar> m_enemies;            ///< List of enemy cars.
+    std::vector<sf::Sprite> m_playerBullets;   ///< Player's bullets on
+                                               ///< screen.
+    std::vector<sf::Sprite> m_enemyBullets;    ///< Enemy bullets on
+                                               ///< screen.
     std::vector<ExplosionEffect> m_explosions; ///< Explosions to render.
-    std::vector<sf::Sprite> m_lives; ///< Icons representing player lives.
+    std::vector<sf::Sprite> m_lives;           ///< Icons representing player
+                                               ///< lives.
 
     bool m_isRunning = true; ///< Flag to control the game loop.
-    float m_lifeScale; ///< Scaling factor for the life icons.
-    float m_textScale; ///< Scaling factor for the text.
-    int m_enemyCount; ///< Current number of enemies on screen.
-    int m_score; ///< Current score of the player.
+    float m_lifeScale;       ///< Scaling factor for the
+                             ///< life icons.
+    float m_textScale;       ///< Scaling factor for the
+                             ///< text.
+    int m_enemyCount;        ///< Current number of
+                             ///< enemies on screen.
+    int m_score;             ///< Current score of the player.
 
     // Control flags
     bool m_shootToggle;
