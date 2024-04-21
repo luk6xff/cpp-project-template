@@ -1,3 +1,5 @@
+# Fethc SFML libs
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -32,7 +34,7 @@ target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
     # Common libraries
-    Collision #LU_TODO
+    Collision
     EasyProfiler
     # Project specific libraries
     sfml-graphics
@@ -48,14 +50,14 @@ target_compile_features(
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 
-# # Clang format
-# include(ClangFormat)
-# Format(${PROJECT_NAME} .)
+# Clang format
+include(ClangFormat)
+Format(${PROJECT_NAME} .)
 
-# # CppCheck
+# CppCheck
 # include(CppCheck)
 # AddCppCheck(${PROJECT_NAME})
 
-# # Generate doxygen documentation
-# include(Doxygen)
-# Doxygen(${PROJECT_NAME} docs)
+# Generate doxygen documentation
+include(Doxygen)
+Doxygen(${PROJECT_NAME} docs)
