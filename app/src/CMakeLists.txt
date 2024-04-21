@@ -53,6 +53,3 @@ Format(${PROJECT_NAME} .)
 include(CppCheck)
 #AddCppCheck(${PROJECT_NAME})
 
-# Generate doxygen documentation
-include(Doxygen)
-Doxygen(${PROJECT_NAME} docs ${CMAKE_SOURCE_DIR}/src)

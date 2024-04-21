@@ -176,24 +176,3 @@ sf::FloatRect Animation::getRect() const
 {
     return m_frames.front().getGlobalBounds();
 }
-
-class ExplosionEffect : public Animation
-{
-protected:
-    sf::Int32 lastTimeDrawn = 0;
-    bool playing            = false;
-    uint32_t currentFrame   = 0;
-
-public:
-    ExplosionEffect(std::vector<sf::Texture>& textures)
-        : Animation(textures)
-    {
-    }
-
-    void play();
-    bool isPlaying();
-    void drawNext(sf::RenderWindow& window);
-    virtual ~ExplosionEffect()
-    {
-    }
-};

@@ -8,4 +8,6 @@ rm -rf build
 
 cmake -S . -B build
 cmake --build build --config Release && ./build/my_project
+# documentation
+cmake --build build -t docs
 ./build/bin/my_project
