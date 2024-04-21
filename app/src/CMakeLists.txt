@@ -1,10 +1,5 @@
-# Fethc SFML libs
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.x)
-FetchContent_MakeAvailable(SFML)
+# Include libraries
+include(GetSFML)
 
 # Include directories
 include_directories(
@@ -55,9 +50,9 @@ include(ClangFormat)
 Format(${PROJECT_NAME} .)
 
 # CppCheck
-# include(CppCheck)
-# AddCppCheck(${PROJECT_NAME})
+include(CppCheck)
+#AddCppCheck(${PROJECT_NAME})
 
 # Generate doxygen documentation
 include(Doxygen)
-Doxygen(${PROJECT_NAME} docs)
+Doxygen(${PROJECT_NAME} docs ${CMAKE_SOURCE_DIR}/src)

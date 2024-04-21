@@ -162,6 +162,6 @@ void GameCar::initializeTruck()
     setFiringRate(80);
     m_damage = 1;
     setScale(0.4 * m_scaleMultiplier, 0.4 * m_scaleMultiplier);
-    configureBullet(0.45 * m_scaleMultiplier, 0.45 * m_scaleMultiplier);
+    configureBullet(0.4 * m_scaleMultiplier, 0.45 * m_scaleMultiplier);
     m_health = 20;
 }

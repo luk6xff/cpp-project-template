@@ -340,7 +340,7 @@ void Game::loadTextures()
 
     // Load enemy textures
     loadCarTextures(m_enemyCarTextures, "media/car_", 3);
-    loadCarTextures(m_enemyTruckTextures, "media/truck_", 1);
+    loadCarTextures(m_enemyTruckTextures, "media/truck_", 0);
 
     // Load explosion textures
     loadCarTextures(m_enemyExplosionTextures, "media/enemy_explosion_", 12);
