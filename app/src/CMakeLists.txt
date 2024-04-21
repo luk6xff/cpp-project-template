@@ -1,8 +1,18 @@
+###########################LU_TODO###########################
+cmake_minimum_required(VERSION 3.22)
+project(my_project LANGUAGES CXX)
+
+# C++17 Standard
+set(CMAKE_CXX_STANDARD 17)
+
 # Set binary output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# Set the cmak module path
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-
+###########################LU_TODO###########################
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -10,12 +20,12 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 # Extended Warnings
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 # Include directories
 include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/thirdparty
+    .
+    ../thirdparty
 )
 
 # List of source files
@@ -29,6 +39,8 @@ set(SOURCE_FILES
     Background/Background.cpp
     GameCar/GameCar.cpp
     Game/Game.cpp
+    #LU_TODO
+    ../thirdparty/Collision/Collision.cpp
 )
 
 add_executable(
@@ -40,8 +52,8 @@ target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
     # Common libraries
-    Collision
-    EasyProfiler
+    #Collision #LU_TODO
+    #EasyProfiler
     # Project specific libraries
     sfml-graphics
     sfml-system
@@ -56,14 +68,14 @@ target_compile_features(
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 
-# Clang format
-include(ClangFormat)
-Format(${PROJECT_NAME} .)
+# # Clang format
+# include(ClangFormat)
+# Format(${PROJECT_NAME} .)
 
-# CppCheck
-include(CppCheck)
-AddCppCheck(${PROJECT_NAME})
+# # CppCheck
+# include(CppCheck)
+# AddCppCheck(${PROJECT_NAME})
 
-# Generate doxygen documentation
-include(Doxygen)
-Doxygen(${PROJECT_NAME} docs)
+# # Generate doxygen documentation
+# include(Doxygen)
+# Doxygen(${PROJECT_NAME} docs)

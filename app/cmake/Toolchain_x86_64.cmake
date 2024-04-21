@@ -17,6 +17,7 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
 set(CMAKE_SYSTEM_NAME Linux)
 add_definitions("-DLINUX")
 add_definitions("-D__linux__")
+set(TOOLCHAIN "Linux x86_64")
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
 
 # Specify the cross compiler
@@ -24,7 +25,7 @@ set(CMAKE_C_COMPILER   /usr/bin/gcc)
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
 
 # Where is the target environment
-set(CMAKE_FIND_ROOT_PATH  ${PROJECT_SOURCE_DIR})
+#set(CMAKE_FIND_ROOT_PATH  ${PROJECT_SOURCE_DIR})
 
 # # Search for programs in the build host directories
 # set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)

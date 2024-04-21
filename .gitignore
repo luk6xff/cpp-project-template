@@ -48,4 +48,5 @@ misc.sh
 *.cache
 *.bash_history
 build-scripts
-testApp
+corpoApp
+app2
