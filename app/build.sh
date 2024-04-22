@@ -12,6 +12,8 @@ cmake --build build --config Release && ./build/my_project
 cmake --build build -t docs
 # cpp check
 cmake --build build -t cppcheck
+# clang-tidy
+cmake --build build -t clang_tidy
 
 
 # Run the project

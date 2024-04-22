@@ -26,6 +26,8 @@ Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
 
 # CppCheck
 include(CppCheck)
+# ClangTidy
+include(ClangTidy)
 #CppCheck(${CMAKE_SOURCE_DIR}/src)
 
 # Add test subdirectory
