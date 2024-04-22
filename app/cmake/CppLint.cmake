@@ -11,8 +11,8 @@ endif()
 set(CPPLINT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 # Define the output directory for cpplint reports
-set(CPPLINT_REPORT_DIR ${CMAKE_BINARY_DIR}/cpplint_reports)
-set(CPPLINT_OUTPUT_FILE ${CPPLINT_REPORT_DIR}/cpplint_output.txt)
+set(CPPLINT_REPORT_DIR ${CMAKE_BINARY_DIR}/cpplint_report)
+set(CPPLINT_OUTPUT_FILE ${CPPLINT_REPORT_DIR}/report.txt)
 
 # Find all relevant source files
 file(GLOB_RECURSE ALL_SOURCE_FILES

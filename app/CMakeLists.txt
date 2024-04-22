@@ -33,6 +33,8 @@ include(ClangTidy)
 #include(Infer)
 # CppLint
 include(CppLint)
+# CodeChecker
+include(CodeChecker)
 
 # Add test subdirectory
 # if (CMAKE_BUILD_TYPE STREQUAL Debug)

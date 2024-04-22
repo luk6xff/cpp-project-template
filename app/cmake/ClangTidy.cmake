@@ -11,7 +11,7 @@ file(GLOB_RECURSE ALL_SOURCE_FILES
      ${CLANG_TIDY_SOURCE_DIR}/*.cpp
      ${CLANG_TIDY_SOURCE_DIR}/*.h)
 
-set(CLANG_TIDY_OUTPUT_FILE ${CMAKE_BINARY_DIR}/clang-tidy-output.txt)
+set(CLANG_TIDY_OUTPUT_FILE ${CMAKE_BINARY_DIR}/clang-tidy-report.txt)
 
 add_custom_command(
     OUTPUT ${CLANG_TIDY_OUTPUT_FILE}

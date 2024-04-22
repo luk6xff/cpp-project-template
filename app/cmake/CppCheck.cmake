@@ -21,7 +21,7 @@ endif()
 set(CPPCHECK_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src)
 
 # Define the target directory for cppcheck reports
-set(CPPCHECK_XML_OUTPUT_DIR ${CMAKE_BINARY_DIR}/cppcheck_xml_output)
+set(CPPCHECK_XML_OUTPUT_DIR ${CMAKE_BINARY_DIR}/cppcheck_report)
 set(CPPCHECK_HTML_REPORT_DIR ${CMAKE_BINARY_DIR}/cppcheck_html_report)
 
 # Cppcheck output in XML format

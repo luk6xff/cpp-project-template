@@ -8,8 +8,8 @@ FROM ubuntu:22.04
 LABEL maintainer="Lukasz Uszko <lukasz.uszko@gmail.com>"
 LABEL Description="luk6xff's cpp project template"
 
-# Set envs
-ENV DEBIAN_FRONTEND noninteractive
+# Set non-interactive installation mode
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Create a default user and group
 ARG USERNAME
@@ -81,8 +81,10 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     software-properties-common \
     # Python
     python3 \
+    python3-dev \
     python3-pip \
     python3-venv \
+    python3-setuptools \
     # Networking
     curl \
     wget \
@@ -114,10 +116,12 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     # clean up
     && rm -rf /var/lib/apt/lists/*
 
-# Install python packages
+# Setup python virtual environment
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install cpplint
 RUN pip install cpplint
 
 # Install Infer
@@ -126,6 +130,20 @@ curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-l
 | sudo tar -C /opt -xJ && \
 sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
 
+# Install CodeChecker
+ENV CODE_CHECKER_PATH=/opt/CodeChecker
+RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+RUN apt-get install -y nodejs
+RUN git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
+    cd ${CODE_CHECKER_PATH} && \
+    make package
+# Set environment variables to include CodeChecker in the PATH
+ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"
+ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
+# Set the report-converter permissions
+RUN chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter
+# Expose the default port used by CodeChecker server
+EXPOSE 8001
 
 ################################################################################
 # Install additional packages required for your project

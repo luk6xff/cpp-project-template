@@ -83,7 +83,7 @@ PATH_PROJECT_ROOT=${__curr_dir}
 
 # Docker container home directory path
 HOME_DIR="/home/${__user}"
-DOCKER_PROJECT_ROOT="${HOME_DIR}"
+DOCKER_PROJECT_ROOT="${PATH_PROJECT_ROOT}" #"${HOME_DIR}"
 [[ -n "${JENKINS_URL+x}" ]] && DOCKER_PROJECT_ROOT="${WORKSPACE}"
 
 # QNX paths

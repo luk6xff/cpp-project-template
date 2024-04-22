@@ -18,7 +18,8 @@ cmake --build build -t clang_tidy
 #cmake --build build -t infer
 # cpplint
 cmake --build build -t cpplint
-
+# code checker
+cmake --build build -t codechecker
 
 # Run the project
 ./build/bin/my_project
