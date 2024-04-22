@@ -13,6 +13,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Set the cmak module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+# Generate compile commands json file needed for analysis tools
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Add source subdirectories
 add_subdirectory(thirdparty)
 add_subdirectory(src)
@@ -20,6 +23,10 @@ add_subdirectory(src)
 # Generate doxygen documentation
 include(Doxygen)
 Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
+
+# CppCheck
+include(CppCheck)
+#CppCheck(${CMAKE_SOURCE_DIR}/src)
 
 # Add test subdirectory
 # if (CMAKE_BUILD_TYPE STREQUAL Debug)

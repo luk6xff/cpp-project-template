@@ -10,4 +10,9 @@ cmake -S . -B build
 cmake --build build --config Release && ./build/my_project
 # documentation
 cmake --build build -t docs
+# cpp check
+cmake --build build -t cppcheck
+
+
+# Run the project
 ./build/bin/my_project

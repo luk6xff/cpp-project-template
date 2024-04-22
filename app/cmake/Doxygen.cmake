@@ -23,19 +23,10 @@ function(Doxygen target input)
 
   # Recursively find all header and source files in the specified directory
   file(GLOB_RECURSE ALL_SOURCE_FILES ${input}/*.cpp ${input}/*.c ${input}/*.h)
-  # # Generate a list of directories containing the source files
-  # set(FILES_LIST "")
-  # foreach(SOURCE_FILE ${ALL_SOURCE_FILES})
-  #   #cmake_path(GET ${SOURCE_FILE} ROOT_PATH ${FILE_PATH})
-  #   list(APPEND FILES_LIST ${SOURCE_FILE})
-  # endforeach()
-
-  # # Remove duplicate directories
-  # list(REMOVE_DUPLICATES ${ALL_SOURCE_FILES})#${FILES_LIST})
 
   doxygen_add_docs(
     ${NAME}
     ${ALL_SOURCE_FILES}
-    COMMENT "Generate docygen documentation for ${target} project"
+    COMMENT "Generate doxygen documentation for target: ${target}"
   )
 endfunction()

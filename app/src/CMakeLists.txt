@@ -50,6 +50,7 @@ include(ClangFormat)
 Format(${PROJECT_NAME} .)
 
 # CppCheck
-include(CppCheck)
+#include(CppCheck)
 #AddCppCheck(${PROJECT_NAME})
+
 

@@ -523,12 +523,12 @@ void Game::spawnEnemies()
         // 20% chance for the enemy to be an truck
         if (randNum < 20)
         {
-            m_enemies.push_back(GameCar{
-                CarType::Truck,
-                GameCar::Team::Enemy,
-                (float)m_screenWidth / 800,
-                m_enemyTruckTextures[randNum % (m_enemyTruckTextures.size())],
-                m_enemyBulletTexture});
+            // m_enemies.push_back(GameCar{
+            //     CarType::Truck,
+            //     GameCar::Team::Enemy,
+            //     (float)m_screenWidth / 800,
+            //     m_enemyTruckTextures[randNum % (m_enemyTruckTextures.size())],
+            //     m_enemyBulletTexture});
         }
         else
         {
