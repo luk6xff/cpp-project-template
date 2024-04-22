@@ -1,6 +1,10 @@
 # cppcheck.cmake
 cmake_minimum_required(VERSION 3.10)
 
+# Parameters
+set(CPPCHECK_LANGUAGE "c++" CACHE STRING "Programming language for cppcheck")
+set(CPPCHECK_STD "c++17" CACHE STRING "C++ standard for cppcheck")
+
 # Find cppcheck and cppcheck-htmlreport script if not already found
 find_program(CPPCHECK_EXECUTABLE NAMES cppcheck)
 find_program(CPPCHECK_HTMLREPORT_EXECUTABLE NAMES cppcheck-htmlreport)
@@ -16,9 +20,6 @@ endif()
 # Set the cppcheck working directory
 set(CPPCHECK_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src)
 
-# Set CPPCHECK_TEMPLATE to format the output messages
-set(CPPCHECK_TEMPLATE "cppcheck:{file}:{line}: {severity}:{message}")
-
 # Define the target directory for cppcheck reports
 set(CPPCHECK_XML_OUTPUT_DIR ${CMAKE_BINARY_DIR}/cppcheck_xml_output)
 set(CPPCHECK_HTML_REPORT_DIR ${CMAKE_BINARY_DIR}/cppcheck_html_report)
@@ -28,8 +29,11 @@ set(CPPCHECK_XML_OUTPUT_FILE ${CPPCHECK_XML_OUTPUT_DIR}/report.xml)
 # Cppcheck output in HTML format
 set(CPPCHECK_HTML_OUTPUT_FILE ${CPPCHECK_HTML_REPORT_DIR}/index.html)
 
-# Recursively find all header and source files in the specified directory
-file(GLOB_RECURSE ALL_SOURCE_FILES ${CPPCHECK_WORKING_DIRECTORY}/*.cpp ${CPPCHECK_WORKING_DIRECTORY}/*.c ${CPPCHECK_WORKING_DIRECTORY}/*.h)
+# Find all relevant source files
+file(GLOB_RECURSE ALL_SOURCE_FILES
+     ${CPPCHECK_WORKING_DIRECTORY}/*.cpp
+     ${CPPCHECK_WORKING_DIRECTORY}/*.c
+     ${CPPCHECK_WORKING_DIRECTORY}/*.h)
 
 # Create a custom command to run cppcheck and generate XML output
 add_custom_command(
@@ -37,15 +41,14 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CPPCHECK_XML_OUTPUT_DIR}
     COMMAND ${CPPCHECK_EXECUTABLE}
             --enable=all
-            #--project=${CMAKE_BINARY_DIR}/compile_commands.json # LU_TODO: Use this option if you want to analyze thirdparty and _deps as well
             --xml-version=2
-            --language=c++
-            --std=c++17
-            --template=${CPPCHECK_TEMPLATE}
+            --language=${CPPCHECK_LANGUAGE}
+            --std=${CPPCHECK_STD}
             --output-file=${CPPCHECK_XML_OUTPUT_FILE}
             --quiet
             ${ALL_SOURCE_FILES}
     WORKING_DIRECTORY ${CPPCHECK_WORKING_DIRECTORY}
+    DEPENDS ${ALL_SOURCE_FILES} # Re-run cppcheck if sources change
     COMMENT "Running cppcheck static analysis and generating XML output"
     VERBATIM
 )
@@ -58,7 +61,7 @@ add_custom_command(
             --file=${CPPCHECK_XML_OUTPUT_FILE}
             --report-dir=${CPPCHECK_HTML_REPORT_DIR}
             --source-dir=${CPPCHECK_WORKING_DIRECTORY}
-    DEPENDS ${CPPCHECK_XML_OUTPUT_FILE}
+    DEPENDS ${CPPCHECK_XML_OUTPUT_FILE} # Depend on the XML output
     COMMENT "Generating HTML report from cppcheck XML output"
     VERBATIM
 )
@@ -66,6 +69,7 @@ add_custom_command(
 # Create a custom target to run the custom commands
 add_custom_target(
     cppcheck
+    ALL # Optionally remove ALL if you don't want it to run every build
     DEPENDS ${CPPCHECK_HTML_OUTPUT_FILE}
     COMMENT "cppcheck HTML report is generated at: ${CPPCHECK_HTML_OUTPUT_FILE}"
 )
