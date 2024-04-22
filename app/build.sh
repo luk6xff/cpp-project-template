@@ -16,6 +16,8 @@ cmake --build build -t cppcheck
 cmake --build build -t clang_tidy
 # infer
 #cmake --build build -t infer
+# cpplint
+cmake --build build -t cpplint
 
 
 # Run the project

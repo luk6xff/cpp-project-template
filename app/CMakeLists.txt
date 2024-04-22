@@ -30,7 +30,9 @@ include(CppCheck)
 # ClangTidy
 include(ClangTidy)
 # Infer
-include(Infer)
+#include(Infer)
+# CppLint
+include(CppLint)
 
 # Add test subdirectory
 # if (CMAKE_BUILD_TYPE STREQUAL Debug)

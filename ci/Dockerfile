@@ -81,7 +81,8 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     software-properties-common \
     # Python
     python3 \
-    python3-pip\
+    python3-pip \
+    python3-venv \
     # Networking
     curl \
     wget \
@@ -112,6 +113,12 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     ###
     # clean up
     && rm -rf /var/lib/apt/lists/*
+
+# Install python packages
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN pip install cpplint
 
 # Install Infer
 RUN VERSION=1.1.0; \
