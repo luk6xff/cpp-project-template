@@ -113,6 +113,12 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     # clean up
     && rm -rf /var/lib/apt/lists/*
 
+# Install Infer
+RUN VERSION=1.1.0; \
+curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
+| sudo tar -C /opt -xJ && \
+sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
+
 
 ################################################################################
 # Install additional packages required for your project

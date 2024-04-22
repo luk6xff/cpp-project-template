@@ -295,8 +295,8 @@ build_command(){
 ################################################################################
 ###  NOTE!!! Modify this only when a new image has been created!
 ################################################################################
-DOCKER_TAG="0.4"
-DOCKER_TAG_TO_PULL="0.4" # this is used by CI to build UTs and will need to be changed when CI updates for now
+DOCKER_TAG="0.1"
+DOCKER_TAG_TO_PULL="0.1" # this is used by CI to build UTs and will need to be changed when CI updates for now
 
 
 # Check if PATH_PROJECT_ROOT path exists

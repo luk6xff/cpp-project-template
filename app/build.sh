@@ -14,6 +14,8 @@ cmake --build build -t docs
 cmake --build build -t cppcheck
 # clang-tidy
 cmake --build build -t clang_tidy
+# infer
+#cmake --build build -t infer
 
 
 # Run the project

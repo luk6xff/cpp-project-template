@@ -29,7 +29,8 @@ Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
 include(CppCheck)
 # ClangTidy
 include(ClangTidy)
-#CppCheck(${CMAKE_SOURCE_DIR}/src)
+# Infer
+include(Infer)
 
 # Add test subdirectory
 # if (CMAKE_BUILD_TYPE STREQUAL Debug)
