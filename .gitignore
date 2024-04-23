@@ -47,6 +47,9 @@ misc.sh
 .vim-bookmarks
 *.cache
 *.bash_history
+
+# Temporary files
 build-scripts
+run_qnx.sh
 corpoApp
 app2
