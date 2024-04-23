@@ -11,10 +11,13 @@ file(GLOB_RECURSE ALL_SOURCE_FILES
      ${CLANG_TIDY_SOURCE_DIR}/*.cpp
      ${CLANG_TIDY_SOURCE_DIR}/*.h)
 
-set(CLANG_TIDY_OUTPUT_FILE ${CMAKE_BINARY_DIR}/clang-tidy-report.txt)
+# Define the target directory for clang-tidy reports
+set(CLANG_TIDY_REPORT_OUTPUT_DIR ${CMAKE_BINARY_DIR}/clang_tidy_report)
+set(CLANG_TIDY_OUTPUT_FILE ${CLANG_TIDY_REPORT_OUTPUT_DIR}/report.txt)
 
 add_custom_command(
     OUTPUT ${CLANG_TIDY_OUTPUT_FILE}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CLANG_TIDY_REPORT_OUTPUT_DIR}
     COMMAND ${CLANG_TIDY_EXECUTABLE}
             -p ${CMAKE_BINARY_DIR}
             ${ALL_SOURCE_FILES}

@@ -21,11 +21,12 @@ endif()
 set(CPPCHECK_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src)
 
 # Define the target directory for cppcheck reports
-set(CPPCHECK_XML_OUTPUT_DIR ${CMAKE_BINARY_DIR}/cppcheck_report)
-set(CPPCHECK_HTML_REPORT_DIR ${CMAKE_BINARY_DIR}/cppcheck_html_report)
+set(CPPCHECK_REPORT_OUTPUT_DIR ${CMAKE_BINARY_DIR}/cppcheck_report)
+set(CPPCHECK_PLIST_OUTPUT_DIR ${CMAKE_BINARY_DIR}/cppcheck_report)
+set(CPPCHECK_HTML_REPORT_DIR ${CPPCHECK_REPORT_OUTPUT_DIR}/html)
 
 # Cppcheck output in XML format
-set(CPPCHECK_XML_OUTPUT_FILE ${CPPCHECK_XML_OUTPUT_DIR}/report.xml)
+set(CPPCHECK_XML_OUTPUT_FILE ${CPPCHECK_REPORT_OUTPUT_DIR}/report.xml)
 # Cppcheck output in HTML format
 set(CPPCHECK_HTML_OUTPUT_FILE ${CPPCHECK_HTML_REPORT_DIR}/index.html)
 
@@ -35,21 +36,23 @@ file(GLOB_RECURSE ALL_SOURCE_FILES
      ${CPPCHECK_WORKING_DIRECTORY}/*.c
      ${CPPCHECK_WORKING_DIRECTORY}/*.h)
 
-# Create a custom command to run cppcheck and generate XML output
+# Create a custom command to run cppcheck and generate XML and plist output
 add_custom_command(
     OUTPUT ${CPPCHECK_XML_OUTPUT_FILE}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CPPCHECK_XML_OUTPUT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CPPCHECK_REPORT_OUTPUT_DIR}
     COMMAND ${CPPCHECK_EXECUTABLE}
             --enable=all
             --xml-version=2
             --language=${CPPCHECK_LANGUAGE}
             --std=${CPPCHECK_STD}
             --output-file=${CPPCHECK_XML_OUTPUT_FILE}
+            --plist-output=${CPPCHECK_PLIST_OUTPUT_DIR}
             --quiet
-            ${ALL_SOURCE_FILES}
+            #${ALL_SOURCE_FILES} # Only Source files
+            --project=${CMAKE_BINARY_DIR}/compile_commands.json # Use compile_commands.json
     WORKING_DIRECTORY ${CPPCHECK_WORKING_DIRECTORY}
     DEPENDS ${ALL_SOURCE_FILES} # Re-run cppcheck if sources change
-    COMMENT "Running cppcheck static analysis and generating XML output"
+    COMMENT "Running cppcheck static analysis and generating XML and .plist output"
     VERBATIM
 )
 

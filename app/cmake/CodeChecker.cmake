@@ -18,6 +18,10 @@ endif()
 # Set the directory to store CodeChecker reports
 set(CODECHECKER_REPORT_DIR ${CMAKE_BINARY_DIR}/codechecker_report)
 
+# Configure CodeChecker server settings
+set(CODECHECKER_SERVER_PORT 8999)
+set(CODECHECKER_SERVER_URL http://localhost:${CODECHECKER_SERVER_PORT}/Default)
+
 # Command to clean previous reports
 add_custom_command(
     OUTPUT ${CODECHECKER_REPORT_DIR}_clean
@@ -28,22 +32,27 @@ add_custom_command(
 )
 
 # Custom targets for each analysis tool
-add_custom_target(run_cppcheck
-    #COMMAND cppcheck --enable=all --xml-version=2 ${CMAKE_SOURCE_DIR} 2> ${CMAKE_BINARY_DIR}/cppcheck_results.xml
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cppcheck -o ${CODECHECKER_REPORT_DIR}/cppcheck ${CMAKE_BINARY_DIR}/cppcheck_report/report.xml
-    COMMENT "Running cppcheck and converting results"
-)
+# add_custom_target(run_cppcheck
+#     #COMMAND cppcheck --enable=all --xml-version=2 ${CMAKE_SOURCE_DIR} 2> ${CMAKE_BINARY_DIR}/cppcheck_results.xml
+#     COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cppcheck -o ${CODECHECKER_REPORT_DIR}/cppcheck ${CMAKE_BINARY_DIR}/cppcheck_report/
+#     DEPENDS cppcheck ${CODECHECKER_REPORT_DIR}_clean
+#     COMMENT "Running cppcheck and converting results"
+# )
 
 add_custom_target(run_cpplint
-    #COMMAND cpplint --recursive ${CMAKE_SOURCE_DIR}/* > ${CMAKE_BINARY_DIR}/cpplint_results.txt
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cpplint -o ${CODECHECKER_REPORT_DIR}/cpplint ${CMAKE_BINARY_DIR}/cpplint_report/report.txt
-    COMMENT "Running cpplint and converting results"
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CODECHECKER_REPORT_DIR}/cpplint
+    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cpplint -o ${CODECHECKER_REPORT_DIR}/cpplint ${CMAKE_BINARY_DIR}/cpplint_report
+    COMMAND ${CODECHECKER_EXECUTABLE} parse --export html --output ${CODECHECKER_REPORT_DIR}/cpplint ${CODECHECKER_REPORT_DIR}/cpplint || true
+    DEPENDS cpplint
+    COMMENT "Processing and converting cpplint report to CodeChecker format..."
 )
 
 add_custom_target(run_clang_tidy
-    #COMMAND run-clang-tidy.py -header-filter='.*' -checks='-*,clang-analyzer-*' -export-fixes=${CMAKE_BINARY_DIR}/clang_tidy_fixes.yaml ${CMAKE_SOURCE_DIR}
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t clang-tidy -o ${CODECHECKER_REPORT_DIR}/clang_tidy ${CMAKE_BINARY_DIR}/clang-tidy-report.txt
-    COMMENT "Running clang-tidy and converting results"
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CODECHECKER_REPORT_DIR}/clang_tidy
+    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t clang-tidy -o ${CODECHECKER_REPORT_DIR}/clang_tidy ${CMAKE_BINARY_DIR}/clang_tidy_report
+    COMMAND ${CODECHECKER_EXECUTABLE} parse --export html --output ${CODECHECKER_REPORT_DIR}/clang_tidy ${CODECHECKER_REPORT_DIR}/clang_tidy || true
+    DEPENDS clang_tidy
+    COMMENT "Processing and converting clang-tidy report to CodeChecker format..."
 )
 
 # add_custom_target(run_infer
@@ -57,10 +66,22 @@ add_custom_target(
     codechecker
     COMMAND ${CMAKE_COMMAND} -E echo "Running static analysis tools with CodeChecker..."
     #COMMAND ${CODECHECKER_EXECUTABLE} analyze ${CMAKE_BINARY_DIR}/compile_commands.json --output ${CODECHECKER_REPORT_DIR} --enable all
-    DEPENDS ${CODECHECKER_REPORT_DIR}_clean run_cppcheck run_cpplint run_clang_tidy #run_infer
-    #COMMAND ${CODECHECKER_EXECUTABLE} web --start-server --workspace ${CODECHECKER_REPORT_DIR}
-    COMMAND ${CODECHECKER_EXECUTABLE} server --workspace ${CODECHECKER_REPORT_DIR} --not-host-only
-    COMMENT "CodeChecker analysis and server starting..."
+    #COMMAND ${CODECHECKER_EXECUTABLE} server --workspace ${CODECHECKER_REPORT_DIR} --not-host-only --port ${CODECHECKER_SERVER_PORT} &
+    COMMAND sh -c "${CODECHECKER_EXECUTABLE} server --workspace ${CODECHECKER_REPORT_DIR} --not-host-only --port ${CODECHECKER_SERVER_PORT} &"
+    # Give it a moment to ensure the server is up before attempting to store the results
+    COMMAND sleep 1
+    COMMAND ${CODECHECKER_EXECUTABLE} store ${CODECHECKER_REPORT_DIR} --name "${PROJECT_NAME} Static Analysis Results" --url ${CODECHECKER_SERVER_URL}
+    DEPENDS run_cpplint run_clang_tidy #run_cppcheck   #run_infer
+    COMMENT "CodeChecker analysis and server starting at: ${CODECHECKER_SERVER_URL}"
+    VERBATIM
+)
+
+add_custom_target(
+    codechecker_update
+    COMMAND ${CMAKE_COMMAND} -E echo "Updating CodeChecker Database with the reports"
+    #DEPENDS codechecker
+    COMMAND ${CODECHECKER_EXECUTABLE} store ${CODECHECKER_REPORT_DIR} --name "${PROJECT_NAME} Static Analysis Results" --url ${CODECHECKER_SERVER_URL}
+    COMMENT "CodeChecker analysis and server starting at: ${CODECHECKER_SERVER_URL}"
     VERBATIM
 )
 

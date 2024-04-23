@@ -49,8 +49,3 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 include(ClangFormat)
 Format(${PROJECT_NAME} .)
 
-# CppCheck
-#include(CppCheck)
-#AddCppCheck(${PROJECT_NAME})
-
-

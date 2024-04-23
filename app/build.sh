@@ -20,6 +20,7 @@ cmake --build build -t clang_tidy
 cmake --build build -t cpplint
 # code checker
 cmake --build build -t codechecker
+#cmake --build build -t codechecker_update
 
 # Run the project
 ./build/bin/my_project
