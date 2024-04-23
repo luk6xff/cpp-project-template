@@ -93,10 +93,10 @@ RUN_CMD=${ENTRY_CMD}
 ARGS='-i --rm -a stdin -a stdout -a stderr'
 
 # Commands
-BUILD_SET_ENV_CMD="cd ${HOME_DIR} && set -a && source ${HOME_DIR}/.env && set +a"
-APPS_BUILD_CMD="${HOME_DIR}/utils/apps_build.sh"
-APPS_RUN_CMD="${HOME_DIR}/utils/apps_run.sh"
-CLEAN_CMD="${HOME_DIR}/utils/clean.sh"
+BUILD_SET_ENV_CMD="cd ${HOME_DIR}"
+APPS_BUILD_CMD="${HOME_DIR}/app/utils/apps_build.sh"
+APPS_RUN_CMD="${HOME_DIR}/app/utils/apps_run.sh"
+CLEAN_CMD="${HOME_DIR}/app/utils/clean.sh"
 
 #########################################################################################
 ###  NOTE!!! Modify DOCKER_TAG variable only when a new image version is gonna be crated
@@ -105,7 +105,7 @@ DOCKER_TAG="0.1"
 
 # Check if PROJECT_ROOT_PATH path exists
 [ -d "${PROJECT_ROOT_PATH}" ] &&  echo "Directory ${PROJECT_ROOT_PATH} found." || {
-	echo "Directory ${PROJECT_ROOT_PATH} not found. Please pass a valid selectrin-hub repository directory path!"
+	echo "Directory ${PROJECT_ROOT_PATH} not found. Please pass a valid app directory path!"
 	usage
 	exit 1
 }
@@ -136,7 +136,7 @@ case "$OPT" in
 		exec > /dev/null 2>&1
 		PRINT_RESULTS=false;;
 	"-a"|"--app" )
-		RUN_CMD="time (${CLEAN_CMD}; exit 0)"
+		RUN_CMD="time (${APPS_BUILD_CMD}; exit 0)"
 		CMD=_build_all;;
 	"-i"|"--image" )
 		RUN_CMD="time (${CLEAN_CMD}; exit 0)"
@@ -150,11 +150,11 @@ case "$OPT" in
 		RUN_CMD="time (${CLEAN_CMD})"
 		CMD=_run;;
 	"-r"|"--run" )
-		RUN_CMD="time (${APP_RUN_CMD})"
+		RUN_CMD="time (${APPS_RUN_CMD})"
 		ARGS='-d --restart unless-stopped'
 		CMD=_run;;
 	"-ri"|"--run-interactive" )
-		RUN_CMD="time (${APP_RUN_CMD})"
+		RUN_CMD="time (${APPS_RUN_CMD})"
 		CMD=_run;;
 	"-s"|"--session" )
 		RUN_CMD="${ENTRY_CMD}"
@@ -204,6 +204,7 @@ _check_and_install_docker() {
 		# Instructions based on: https://docs.docker.com/install/linux/docker-ce/ubuntu/
 		sudo apt-get update
 		sudo apt install docker.io
+		sudo apt install docker-buildx
 		sudo usermod -aG docker ${USER}
 		newgrp docker <<-END
 		echo >&2 "This is running as group $(id)"
@@ -281,7 +282,7 @@ _build_image() {
 			if [[ $res == 0 ]]; then
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been built successfully! <<<"
 				echo "Saving docker image as: ${DOCKER_IMG}:${DOCKER_TAG}.tar.gz ..."
-				docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}:${DOCKER_TAG}.tar.gz
+				#docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}:${DOCKER_TAG}.tar.gz LU_TODO
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been saved successfully! <<<"
 			else
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} build failed! <<<"
@@ -330,7 +331,7 @@ _run() {
 		-e DISPLAY=$DISPLAY \
 		-v /tmp/:/tmp \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
-		-v ~/.ssh:/home/luk6xff/.ssh \
+		-v ~/.ssh:/home/${USER}/.ssh \
 		--volume ${APPS_DIR}:${HOME_DIR} \
 		${DOCKER_IMG}:${DOCKER_TAG} ${ENTRY_CMD} -c "${BUILD_SET_ENV_CMD} && ${RUN_CMD}"
 	exit 0
