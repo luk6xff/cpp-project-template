@@ -112,6 +112,7 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     git-flow \
     # Other tools
     lsb-release \
+    jq \
     ###
     # clean up
     && rm -rf /var/lib/apt/lists/*

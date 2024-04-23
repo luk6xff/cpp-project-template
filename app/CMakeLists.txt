@@ -25,14 +25,6 @@ add_subdirectory(src)
 include(Doxygen)
 Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
 
-# CppCheck
-include(CppCheck)
-# ClangTidy
-include(ClangTidy)
-# Infer
-#include(Infer)
-# CppLint
-include(CppLint)
 # CodeChecker
 include(CodeChecker)
 

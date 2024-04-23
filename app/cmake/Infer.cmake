@@ -6,8 +6,9 @@ if(NOT INFER_EXECUTABLE)
     message(FATAL_ERROR "Infer not found! Please install Infer or check your PATH.")
 endif()
 
-# Ensure compile_commands.json will be generated
+# Ensure compile_commands.json will be generated and filtered
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+include(FilterCompileCommands)
 
 # Path for Infer output
 set(INFER_OUTPUT_DIR ${CMAKE_BINARY_DIR}/infer-out)
@@ -23,15 +24,16 @@ add_custom_command(
 )
 
 # Custom target to run Infer
-add_custom_target(infer ALL
+add_custom_target(
+    infer
     COMMAND ${CMAKE_COMMAND} -E echo "Running Infer capture..."
-    COMMAND ${INFER_EXECUTABLE} capture --reactive --continue --compilation-database ${CMAKE_BINARY_DIR}/compile_commands.json
+    COMMAND ${INFER_EXECUTABLE} capture --reactive --continue --compilation-database ${CMAKE_BINARY_DIR}/filtered_compile_commands.json
     COMMAND ${CMAKE_COMMAND} -E echo "Running Infer analyze..."
     COMMAND ${INFER_EXECUTABLE} analyze --results-dir ${INFER_OUTPUT_DIR}
-    DEPENDS ${INFER_OUTPUT_DIR}
+    DEPENDS ${INFER_OUTPUT_DIR} filter_compile_commands
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Infer static analysis is running..."
 )
 
 # Optionally add this analysis as part of the project build
-add_dependencies(${PROJECT_NAME} infer)
+# add_dependencies(${PROJECT_NAME} infer)

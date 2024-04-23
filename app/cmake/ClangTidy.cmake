@@ -33,3 +33,6 @@ add_custom_target(
     DEPENDS ${CLANG_TIDY_OUTPUT_FILE}
     COMMENT "clang-tidy output saved to ${CLANG_TIDY_OUTPUT_FILE}"
 )
+
+# Optionally add this analysis as part of the project build
+# add_dependencies(${PROJECT_NAME} clang_tidy)

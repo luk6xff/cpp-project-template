@@ -48,8 +48,8 @@ add_custom_command(
             --output-file=${CPPCHECK_XML_OUTPUT_FILE}
             --plist-output=${CPPCHECK_PLIST_OUTPUT_DIR}
             --quiet
-            #${ALL_SOURCE_FILES} # Only Source files
-            --project=${CMAKE_BINARY_DIR}/compile_commands.json # Use compile_commands.json
+            ${ALL_SOURCE_FILES} # Use only Source files
+            #--project=${CMAKE_BINARY_DIR}/compile_commands.json # Use compile_commands.json
     WORKING_DIRECTORY ${CPPCHECK_WORKING_DIRECTORY}
     DEPENDS ${ALL_SOURCE_FILES} # Re-run cppcheck if sources change
     COMMENT "Running cppcheck static analysis and generating XML and .plist output"
@@ -76,3 +76,6 @@ add_custom_target(
     DEPENDS ${CPPCHECK_HTML_OUTPUT_FILE}
     COMMENT "cppcheck HTML report is generated at: ${CPPCHECK_HTML_OUTPUT_FILE}"
 )
+
+# Optionally add this analysis as part of the project build
+# add_dependencies(${PROJECT_NAME} cppcheck)
