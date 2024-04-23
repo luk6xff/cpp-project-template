@@ -139,6 +139,7 @@ void Animation::moveRight(float speed, int maxX)
     {
         setPosition(rect.left + speed, rect.top);
     }
+    int* a = new int;
 }
 
 void Animation::setMsBetweenFrames(int ms)

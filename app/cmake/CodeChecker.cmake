@@ -40,7 +40,7 @@ add_custom_command(
 # Custom targets for each analysis tool
 add_custom_target(process_report_cppcheck
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CODECHECKER_REPORT_DIR}/cppcheck
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cppcheck -o ${CODECHECKER_REPORT_DIR}/cppcheck ${CMAKE_BINARY_DIR}/cppcheck_report
+    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cppcheck -o ${CODECHECKER_REPORT_DIR}/cppcheck ${CMAKE_BINARY_DIR}/cppcheck_report || true
     COMMAND ${CODECHECKER_EXECUTABLE} parse --export html --output ${CODECHECKER_REPORT_DIR}/cppcheck ${CODECHECKER_REPORT_DIR}/cppcheck || true
     DEPENDS cppcheck
     COMMENT "Processing and converting cpplint report to CodeChecker format..."
@@ -49,7 +49,7 @@ add_custom_target(process_report_cppcheck
 
 add_custom_target(process_report_cpplint
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CODECHECKER_REPORT_DIR}/cpplint
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cpplint -o ${CODECHECKER_REPORT_DIR}/cpplint ${CMAKE_BINARY_DIR}/cpplint_report
+    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t cpplint -o ${CODECHECKER_REPORT_DIR}/cpplint ${CMAKE_BINARY_DIR}/cpplint_report || true
     COMMAND ${CODECHECKER_EXECUTABLE} parse --export html --output ${CODECHECKER_REPORT_DIR}/cpplint ${CODECHECKER_REPORT_DIR}/cpplint || true
     DEPENDS cpplint
     COMMENT "Processing and converting cpplint report to CodeChecker format..."
@@ -57,7 +57,7 @@ add_custom_target(process_report_cpplint
 
 add_custom_target(process_report_clang_tidy
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CODECHECKER_REPORT_DIR}/clang_tidy
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t clang-tidy -o ${CODECHECKER_REPORT_DIR}/clang_tidy ${CMAKE_BINARY_DIR}/clang_tidy_report
+    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t clang-tidy -o ${CODECHECKER_REPORT_DIR}/clang_tidy ${CMAKE_BINARY_DIR}/clang_tidy_report || true
     COMMAND ${CODECHECKER_EXECUTABLE} parse --export html --output ${CODECHECKER_REPORT_DIR}/clang_tidy ${CODECHECKER_REPORT_DIR}/clang_tidy || true
     DEPENDS clang_tidy
     COMMENT "Processing and converting clang-tidy report to CodeChecker format..."
@@ -65,7 +65,7 @@ add_custom_target(process_report_clang_tidy
 
 add_custom_target(process_report_infer
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CODECHECKER_REPORT_DIR}/infer
-    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t fbinfer -o ${CODECHECKER_REPORT_DIR}/infer ${CMAKE_BINARY_DIR}/infer-out || true
+    COMMAND ${REPORT_CONVERTER_EXECUTABLE} -t fbinfer -o ${CODECHECKER_REPORT_DIR}/infer ${CMAKE_BINARY_DIR}/infer-out/report.json || true
     COMMAND ${CODECHECKER_EXECUTABLE} parse --export html --output ${CODECHECKER_REPORT_DIR}/infer ${CODECHECKER_REPORT_DIR}/infer || true
     DEPENDS infer
     COMMENT "Processing and converting infer report to CodeChecker format..."
