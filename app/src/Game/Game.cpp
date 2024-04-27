@@ -2,8 +2,12 @@
 
 #include <cmath>
 
-Game::Game(Resolution::Setting resolutionSetting, Difficulty::Level gameDifficulty)
-    : m_timePerFrame(sf::seconds(1.f / 60.f))
+Game::Game(
+    const std::filesystem::path& execDirPath,
+    Resolution::Setting resolutionSetting,
+    Difficulty::Level gameDifficulty)
+    : m_execDirPath(execDirPath)
+    , m_timePerFrame(sf::seconds(1.f / 60.f))
     , m_delta(m_timePerFrame.asSeconds())
     , m_lifeScale(0.07f)
     , m_textScale(2.0f)
@@ -22,7 +26,7 @@ Game::Game(Resolution::Setting resolutionSetting, Difficulty::Level gameDifficul
 {
     setResolution(resolutionSetting);
     setDifficulty(gameDifficulty);
-    statusTextView();
+    initializeStatusTextView();
     loadHighScores();
     loadTextures();
     initPlayer();
@@ -34,6 +38,9 @@ Game::Game(Resolution::Setting resolutionSetting, Difficulty::Level gameDifficul
     m_window.setFramerateLimit(60);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Public methods
+///////////////////////////////////////////////////////////////////////////////
 void Game::run()
 {
     sf::Clock clock;
@@ -57,6 +64,78 @@ void Game::run()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Private methods
+///////////////////////////////////////////////////////////////////////////////
+void Game::setResolution(Resolution::Setting resolution)
+{
+    auto dimensions = Resolution::getIntFromResolution(resolution);
+    m_screenHeight  = dimensions.first;
+    m_screenWidth   = dimensions.second;
+    m_window.setSize(sf::Vector2u(m_screenHeight, m_screenWidth));
+    m_window.setView(sf::View(sf::FloatRect(0, 0, m_screenHeight, m_screenWidth)));
+}
+
+void Game::setDifficulty(Difficulty::Level difficulty)
+{
+    m_difficulty = difficulty;
+    // Adjust game parameters based on difficulty
+    switch (m_difficulty)
+    {
+        case Difficulty::Level::Easy:
+            m_enemyChanceNotToShoot = 15.0f;
+            break;
+        case Difficulty::Level::Normal:
+            m_enemyChanceNotToShoot = 10.0f;
+            break;
+        case Difficulty::Level::Hard:
+            m_enemyChanceNotToShoot = 5.0f;
+            break;
+    }
+}
+
+void Game::initializeStatusTextView()
+{
+    if (!m_font.loadFromFile(m_execDirPath / m_execDirPath / "assets/fonts/Jersey25-Regular.ttf"))
+    {
+        std::cerr << "Failed to load font." << std::endl;
+        return;
+    }
+
+    m_scoreText.setFont(m_font);
+    m_scoreText.setCharacterSize(24);
+    m_scoreText.setFillColor(sf::Color::Green);
+
+    m_highScoreText.setFont(m_font);
+    m_highScoreText.setCharacterSize(24);
+    m_highScoreText.setFillColor(sf::Color::Green);
+
+    m_timeText.setFont(m_font);
+    m_timeText.setCharacterSize(24);
+    m_timeText.setFillColor(sf::Color::Red);
+
+    m_restartText.setFont(m_font);
+    m_restartText.setCharacterSize(64);
+    m_restartText.setFillColor(sf::Color::Red);
+    m_restartText.setString("Press R to restart");
+    sf::FloatRect restartBounds = m_restartText.getLocalBounds();
+    m_restartText.setPosition((m_screenWidth - restartBounds.width) / 2, (m_screenHeight - restartBounds.height) / 2);
+
+    updateStatusTextView();
+}
+
+void Game::updateStatusTextView()
+{
+    // Data
+    m_scoreText.setString("Score: " + std::to_string(m_score));
+    m_highScoreText.setString("High Score: " + std::to_string(m_highScores[static_cast<int>(m_difficulty)]));
+
+    // Positions
+    m_scoreText.setPosition(10, 5);
+    sf::FloatRect highScoreBounds = m_highScoreText.getLocalBounds();
+    m_highScoreText.setPosition(m_screenWidth - highScoreBounds.width - 10, 5);
+}
+
 void Game::handleInput()
 {
     sf::Event event;
@@ -71,7 +150,6 @@ void Game::handleInput()
             switch (event.key.code)
             {
                 case sf::Keyboard::Escape:
-                case sf::Keyboard::Q:
                     m_window.close();
                     break;
                 case sf::Keyboard::R:
@@ -79,9 +157,6 @@ void Game::handleInput()
                     break;
                 case sf::Keyboard::Space:
                     m_shoot = true;
-                    break;
-                case sf::Keyboard::G:
-                    m_shootToggle = !m_shootToggle;
                     break;
                 case sf::Keyboard::W:
                 case sf::Keyboard::Up:
@@ -156,7 +231,7 @@ void Game::updateActions()
 {
     if (!m_player->isDead())
     {
-        if (m_shoot || m_shootToggle)
+        if (m_shoot)
         {
             std::vector<sf::Sprite> bullets = m_player->fireBullets();
             m_playerBullets.insert(m_playerBullets.end(), bullets.begin(), bullets.end());
@@ -181,6 +256,14 @@ void Game::updateActions()
                 enemy.flash(sf::Color::Blue, 30);
                 bulletIt = m_playerBullets.erase(bulletIt);
                 bulletIt--;
+                if (enemy.isDead())
+                {
+                    m_score += enemy.getDamage();
+                    m_explosions.push_back(ExplosionEffect{m_enemyExplosionTextures});
+                    m_explosions.back().setPosition(enemy.getPosition().x, enemy.getPosition().y);
+                    m_explosions.back().setMsBetweenFrames(1000 / 60);
+                    m_explosions.back().play();
+                }
                 break;
             }
         }
@@ -204,6 +287,7 @@ void Game::updateActions()
         m_enemyCount++;
         spawnEnemies();
     }
+    updateStatusTextView();
 }
 
 void Game::destroyObjects()
@@ -293,6 +377,13 @@ void Game::render()
         m_window.draw(m_timeText);
         m_window.draw(m_highScoreText);
     }
+    else
+    {
+        m_window.draw(m_scoreText);
+        m_window.draw(m_timeText);
+        m_window.draw(m_highScoreText);
+    }
+
     m_window.display();
 }
 
@@ -304,7 +395,7 @@ bool Game::isOutOfScreen(const sf::FloatRect& rect) const
 
 void Game::loadTextures()
 {
-    if (!m_backgroundTexture.loadFromFile("media/background.png"))
+    if (!m_backgroundTexture.loadFromFile(m_execDirPath / "assets/sprites/background.png"))
     {
         std::cerr << "Failed to load background "
                      "texture."
@@ -312,26 +403,26 @@ void Game::loadTextures()
     }
     m_background = std::make_unique<Background>(m_backgroundTexture, m_screenWidth, m_screenHeight);
 
-    if (!m_playerBulletTexture.loadFromFile("media/player_bullet.bmp"))
+    if (!m_playerBulletTexture.loadFromFile(m_execDirPath / "assets/sprites/player_bullet.bmp"))
     {
         std::cerr << "Failed to load player "
                      "bullet texture."
                   << std::endl;
     }
 
-    if (!m_enemyBulletTexture.loadFromFile("media/enemy_bullet.bmp"))
+    if (!m_enemyBulletTexture.loadFromFile(m_execDirPath / "assets/sprites/enemy_bullet.bmp"))
     {
         std::cerr << "Failed to load enemy "
                      "bullet texture."
                   << std::endl;
     }
 
-    if (!m_playerLifeTexture.loadFromFile("media/life.png"))
+    if (!m_playerLifeTexture.loadFromFile(m_execDirPath / "assets/sprites/life.png"))
     {
         std::cerr << "Failed to load life texture." << std::endl;
     }
 
-    if (!m_playerCarTexture.loadFromFile("media/player_car.png"))
+    if (!m_playerCarTexture.loadFromFile(m_execDirPath / "assets/sprites/player_car.png"))
     {
         std::cerr << "Failed to load player car "
                      "texture."
@@ -339,12 +430,12 @@ void Game::loadTextures()
     }
 
     // Load enemy textures
-    loadCarTextures(m_enemyCarTextures, "media/car_", 3);
-    loadCarTextures(m_enemyTruckTextures, "media/truck_", 0);
+    loadCarTextures(m_enemyCarTextures, m_execDirPath / "assets/sprites/car_", 3);
+    loadCarTextures(m_enemyTruckTextures, m_execDirPath / "assets/sprites/truck_", 0);
 
     // Load explosion textures
-    loadCarTextures(m_enemyExplosionTextures, "media/enemy_explosion_", 12);
-    loadCarTextures(m_playerExplosionTextures, "media/player_explosion_", 12);
+    loadCarTextures(m_enemyExplosionTextures, m_execDirPath / "assets/sprites/enemy_explosion_", 12);
+    loadCarTextures(m_playerExplosionTextures, m_execDirPath / "assets/sprites/player_explosion_", 12);
 }
 
 void Game::loadCarTextures(std::vector<sf::Texture>& textures, const std::string& basePath, int count)
@@ -388,23 +479,6 @@ void Game::saveNewHighscore()
         return;
     }
     scoresFile.write(reinterpret_cast<const char*>(m_highScores.data()), sizeof(m_highScores));
-}
-
-// Update the score and high score texts
-void Game::updateStatusTextView()
-{
-    m_scoreText.setString("Score: " + std::to_string(m_score));
-    m_highScoreText.setString("High Score: " + std::to_string(m_highScores[static_cast<int>(m_difficulty)]));
-
-    // Position the score text at the top center
-    // of the screen
-    sf::FloatRect scoreBounds = m_scoreText.getLocalBounds();
-    m_scoreText.setPosition((m_screenWidth - scoreBounds.width) / 2, 20);
-
-    // Position the high score text just below the
-    // score text
-    sf::FloatRect highScoreBounds = m_highScoreText.getLocalBounds();
-    m_highScoreText.setPosition((m_screenWidth - highScoreBounds.width) / 2, 50);
 }
 
 // Reset game to initial state
@@ -455,19 +529,6 @@ void Game::playerMovement()
         m_player->move(0, m_playerSpeed * m_delta);
 }
 
-// Initialize text elements
-void Game::statusTextView()
-{
-    m_scoreText.setCharacterSize(24);
-    m_scoreText.setFillColor(sf::Color::Green);
-
-    m_highScoreText.setCharacterSize(24);
-    m_highScoreText.setFillColor(sf::Color::Green);
-
-    m_timeText.setCharacterSize(24);
-    m_timeText.setFillColor(sf::Color::Green);
-}
-
 // Initialize the player
 void Game::initPlayer()
 {
@@ -483,35 +544,6 @@ void Game::initPlayer()
     m_player->setHealth(m_maxPlayerHealth);
 }
 
-// Set resolution based on settings
-void Game::setResolution(Resolution::Setting resolution)
-{
-    auto dimensions = Resolution::getIntFromResolution(resolution);
-    m_screenHeight  = dimensions.first;
-    m_screenWidth   = dimensions.second;
-    m_window.setSize(sf::Vector2u(m_screenWidth, m_screenHeight));
-    m_window.setView(sf::View(sf::FloatRect(0, 0, m_screenWidth, m_screenHeight)));
-}
-
-// Set difficulty level of the game
-void Game::setDifficulty(Difficulty::Level difficulty)
-{
-    m_difficulty = difficulty;
-    // Adjust game parameters based on difficulty
-    switch (m_difficulty)
-    {
-        case Difficulty::Level::Easy:
-            m_enemyChanceNotToShoot = 15.0f;
-            break;
-        case Difficulty::Level::Normal:
-            m_enemyChanceNotToShoot = 10.0f;
-            break;
-        case Difficulty::Level::Hard:
-            m_enemyChanceNotToShoot = 5.0f;
-            break;
-    }
-}
-
 // Spawn enemies on the screen
 void Game::spawnEnemies()
 {
@@ -521,22 +553,24 @@ void Game::spawnEnemies()
         int randNum = rand() % 100;
 
         // 20% chance for the enemy to be an truck
-        if (randNum < 20)
-        {
-            // m_enemies.push_back(GameCar{
-            //     CarType::Truck,
-            //     GameCar::Team::Enemy,
-            //     (float)m_screenWidth / 800,
-            //     m_enemyTruckTextures[randNum % (m_enemyTruckTextures.size())],
-            //     m_enemyBulletTexture});
-        }
-        else
+        // if (randNum < 20)
+        // {
+        //     m_enemies.push_back(GameCar{
+        //         CarType::Truck,
+        //         GameCar::Team::Enemy,
+        //         (float)m_screenWidth / 800,
+        //         m_enemyTruckTextures[randNum % (m_enemyTruckTextures.size())],
+        //         m_enemyBulletTexture});
+        // }
+        // else
+        int xxx = m_enemyCarTextures.size();
+        int zzz = randNum % (m_enemyCarTextures.size());
         {
             m_enemies.push_back(GameCar{
                 CarType::Car,
                 GameCar::Team::Enemy,
                 (float)m_screenWidth / 800,
-                m_enemyCarTextures[randNum % (m_enemyCarTextures.size())],
+                m_enemyCarTextures[zzz],
                 m_enemyBulletTexture});
         }
         // Set position

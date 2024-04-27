@@ -5,12 +5,13 @@
 #include "Background/Background.h"
 #include "Configuration/Difficulty.h"
 #include "Configuration/Resolution.h"
-#include "GameCar/GameCar.h"
+#include "Game/GameCar.h"
 
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <cstdlib>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -36,12 +37,16 @@ public:
      * @brief Construct a new Game object with
      * specified settings for resolution and
      * difficulty.
+     * @param execDirPath Filesystem path to the binary.
      * @param resolutionSetting Screen resolution
      * settings.
      * @param gameDifficulty Difficulty level of
      * the game.
      */
-    Game(Resolution::Setting resolutionSetting, Difficulty::Level gameDifficulty);
+    Game(
+        const std::filesystem::path& execDirPath,
+        Resolution::Setting resolutionSetting,
+        Difficulty::Level gameDifficulty);
 
     /**
      * @brief Starts the game loop, handling all
@@ -50,10 +55,12 @@ public:
     void run();
 
 private:
-    sf::RenderWindow m_window; ///< The main window where the
-                               ///< game is rendered.
-    uint32_t m_screenWidth;    ///< Width of the screen.
-    uint32_t m_screenHeight;   ///< Height of the screen.
+    const std::filesystem::path& m_execDirPath; ///< Path to the
+                                                ///< executable.
+    sf::RenderWindow m_window;                  ///< The main window where the
+                                                ///< game is rendered.
+    uint32_t m_screenWidth;                     ///< Width of the screen.
+    uint32_t m_screenHeight;                    ///< Height of the screen.
 
     sf::Clock m_playTimeClock; ///< Clock for measuring
                                ///< play time.
@@ -108,7 +115,6 @@ private:
     int m_score;             ///< Current score of the player.
 
     // Control flags
-    bool m_shootToggle;
     bool m_shoot;
     bool m_moveLeft;
     bool m_moveRight;
@@ -125,21 +131,25 @@ private:
     const float m_backgroundSpeed;
     float m_enemyChanceNotToShoot;
 
+    // Set resolution based on settings
+    void setResolution(Resolution::Setting resolution);
+    // Set difficulty level of the game
+    void setDifficulty(Difficulty::Level difficulty);
+    void initializeStatusTextView();
+    void updateStatusTextView();
+
     void loadTextures();
     void loadCarTextures(std::vector<sf::Texture>& textures, const std::string& basePath, int count);
     bool loadHighScores();
     void saveNewHighscore();
-    void updateStatusTextView();
     void restart();
     void initLifeIndicators();
     void playerMovement();
-    void statusTextView();
-    void initPlayer();
-    void setResolution(Resolution::Setting resolution);
-    void spawnEnemies();
-    void setDifficulty(Difficulty::Level difficulty);
-    bool isOutOfScreen(const sf::FloatRect& rect) const;
 
+    void initPlayer();
+    void spawnEnemies();
+
+    bool isOutOfScreen(const sf::FloatRect& rect) const;
     void handleInput();
     void updateMovement();
     void updateActions();

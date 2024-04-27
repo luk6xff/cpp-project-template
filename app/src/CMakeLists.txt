@@ -16,7 +16,8 @@ set(SOURCE_FILES
     Animation/Animation.cpp
     Animation/ExplosionEffect.cpp
     Background/Background.cpp
-    GameCar/GameCar.cpp
+    Game/GameCar.cpp
+    Game/ExecutablePath.cpp
     Game/Game.cpp
 )
 
@@ -43,7 +44,19 @@ target_compile_features(
     PRIVATE cxx_std_17
 )
 
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIXR})
+#install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_INSTALL_PREFIX}/assets) LU_TODO: Fix this
+#file(COPY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION {CMAKE_INSTALL_PREFIX}/assets)
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            ${CMAKE_INSTALL_PREFIX}/assets
+    COMMENT "Copying assets to build directory"
+)
+
+
 
 # Clang format
 include(ClangFormat)

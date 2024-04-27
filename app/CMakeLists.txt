@@ -8,8 +8,12 @@ set(PROJECT_TARGET ${PROJECT_NAME})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Set binary output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Set the build type - LU_TODO: - Move this to the command line
+set(CMAKE_BUILD_TYPE Debug)
+
+# Set binary output directory and install prefix
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
 
 # Set the cmak module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
