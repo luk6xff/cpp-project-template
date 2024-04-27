@@ -54,7 +54,7 @@ std::vector<sf::Sprite> GameCar::fireBullets()
         for (const auto& pos : m_shootingPositions)
         {
             m_bulletSprite.setPosition(
-                carPosition.x + pos.x - bulletRect.width / 2,
+                carPosition.x + pos.x - bulletRect.width, // / 2,
                 carPosition.y + pos.y - bulletRect.height);
             bullets.push_back(m_bulletSprite);
         }

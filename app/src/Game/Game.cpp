@@ -19,6 +19,8 @@ Game::Game(
     , m_enemyBulletSpeed(300.f)
     , m_backgroundSpeed(1200.f)
     , m_enemyChanceNotToShoot(6.5f)
+    , m_score(0)
+    , m_highScores({0, 0, 0})
     , m_moveDown(false)
     , m_moveLeft(false)
     , m_moveRight(false)
@@ -29,7 +31,7 @@ Game::Game(
     initializeStatusTextView();
     loadHighScores();
     loadTextures();
-    initPlayer();
+    spawnPlayer();
     initLifeIndicators();
 
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
@@ -56,7 +58,7 @@ void Game::run()
             timeSinceLastUpdate -= m_timePerFrame;
             handleInput();
             updateMovement();
-            updateActions();
+            updateState();
             destroyObjects();
         }
 
@@ -99,6 +101,15 @@ void Game::initializeStatusTextView()
     if (!m_font.loadFromFile(m_execDirPath / m_execDirPath / "assets/fonts/Jersey25-Regular.ttf"))
     {
         std::cerr << "Failed to load font." << std::endl;
+
+        m_restartText.setFont(m_font);
+        m_restartText.setCharacterSize(48);
+        m_restartText.setFillColor(sf::Color::Red);
+        m_restartText.setString("Press R to restart");
+        sf::FloatRect restartBounds = m_restartText.getLocalBounds();
+        m_restartText.setPosition(
+            (m_screenWidth - restartBounds.width) / 2,
+            (m_screenHeight - restartBounds.height) / 2);
         return;
     }
 
@@ -227,7 +238,7 @@ void Game::updateMovement()
     }
 }
 
-void Game::updateActions()
+void Game::updateState()
 {
     if (!m_player->isDead())
     {
@@ -256,14 +267,6 @@ void Game::updateActions()
                 enemy.flash(sf::Color::Blue, 30);
                 bulletIt = m_playerBullets.erase(bulletIt);
                 bulletIt--;
-                if (enemy.isDead())
-                {
-                    m_score += enemy.getDamage();
-                    m_explosions.push_back(ExplosionEffect{m_enemyExplosionTextures});
-                    m_explosions.back().setPosition(enemy.getPosition().x, enemy.getPosition().y);
-                    m_explosions.back().setMsBetweenFrames(1000 / 60);
-                    m_explosions.back().play();
-                }
                 break;
             }
         }
@@ -318,17 +321,23 @@ void Game::destroyObjects()
             m_enemies.end(),
             [this](const GameCar& car)
             {
+                if (car.isDead())
+                {
+                    m_score += car.getDamage();
+                    m_explosions.push_back(ExplosionEffect{m_enemyExplosionTextures});
+                    m_explosions.back().setPosition(car.getPosition().x, car.getPosition().y);
+                    m_explosions.back().setMsBetweenFrames(1000 / 60);
+                    m_explosions.back().play();
+                }
                 return car.isDead();
             }),
         m_enemies.end());
 
     if (m_player->isDead() && m_player->isInvisible() == false)
     {
-        sf::Vector2f playerPos = m_player->getPosition();
+        const sf::Vector2f playerPos = m_player->getPosition();
         m_player->toggleInvisibility();
 
-        // placing explosion effect
-        playerPos.x -= 20 * (m_screenWidth / 1024);
         m_explosions.push_back(ExplosionEffect{m_playerExplosionTextures});
         m_explosions.back().setPosition(playerPos.x, playerPos.y);
         m_explosions.back().setMsBetweenFrames(1000 / 60);
@@ -364,7 +373,7 @@ void Game::render()
     }
     for (auto& explosion : m_explosions)
     {
-        explosion.draw(m_window);
+        explosion.drawNext(m_window);
     }
     for (const auto& life : m_lives)
     {
@@ -459,7 +468,7 @@ void Game::loadCarTextures(std::vector<sf::Texture>& textures, const std::string
 // Load high scores from a file
 bool Game::loadHighScores()
 {
-    std::ifstream scoresFile("results.bin", std::ios::binary);
+    std::ifstream scoresFile(m_execDirPath / "results.bin", std::ios::binary);
     if (!scoresFile)
     {
         std::cerr << "Failed to open high scores file." << std::endl;
@@ -472,7 +481,7 @@ bool Game::loadHighScores()
 // Save high scores to a file
 void Game::saveNewHighscore()
 {
-    std::ofstream scoresFile("results.bin", std::ios::binary | std::ios::trunc);
+    std::ofstream scoresFile(m_execDirPath / "results.bin", std::ios::binary | std::ios::trunc);
     if (!scoresFile)
     {
         std::cerr << "Failed to write high scores file." << std::endl;
@@ -530,16 +539,12 @@ void Game::playerMovement()
 }
 
 // Initialize the player
-void Game::initPlayer()
+void Game::spawnPlayer()
 {
-    m_player = std::make_unique<GameCar>(
-        CarType::Car,
-        GameCar::Team::Player,
-        (float)m_screenWidth / 800,
-        m_playerCarTexture,
-        m_playerBulletTexture);
+    m_player =
+        std::make_unique<GameCar>(CarType::Car, GameCar::Team::Player, 2.0f, m_playerCarTexture, m_playerBulletTexture);
     m_player->setPosition(
-        (m_screenWidth / 2.0f) - m_player->getRect().width / 2,
+        (m_screenWidth / 1.5f) - m_player->getRect().width / 2,
         m_screenHeight - m_player->getRect().height);
     m_player->setHealth(m_maxPlayerHealth);
 }
@@ -566,12 +571,8 @@ void Game::spawnEnemies()
         int xxx = m_enemyCarTextures.size();
         int zzz = randNum % (m_enemyCarTextures.size());
         {
-            m_enemies.push_back(GameCar{
-                CarType::Car,
-                GameCar::Team::Enemy,
-                (float)m_screenWidth / 800,
-                m_enemyCarTextures[zzz],
-                m_enemyBulletTexture});
+            m_enemies.push_back(
+                GameCar{CarType::Car, GameCar::Team::Enemy, 1.4f, m_enemyCarTextures[zzz], m_enemyBulletTexture});
         }
         // Set position
         int y = (rand() % 2) * m_enemies.back().getRect().height;

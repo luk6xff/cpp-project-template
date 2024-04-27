@@ -146,13 +146,13 @@ private:
     void initLifeIndicators();
     void playerMovement();
 
-    void initPlayer();
+    void spawnPlayer();
     void spawnEnemies();
 
     bool isOutOfScreen(const sf::FloatRect& rect) const;
     void handleInput();
     void updateMovement();
-    void updateActions();
+    void updateState();
     void destroyObjects();
     void render();
 };
