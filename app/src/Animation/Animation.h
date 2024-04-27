@@ -80,7 +80,7 @@ public:
      * @param scaleY The scale factor along the
      * y-axis.
      */
-    virtual void setScale(float scaleX, float scaleY);
+    void setScale(float scaleX, float scaleY);
 
     /**
      * @brief Sets the position for all animation

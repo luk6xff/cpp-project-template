@@ -3,6 +3,7 @@
 #include "Collision/Collision.h"
 
 #include <cmath>
+#include <iostream>
 
 GameCar::GameCar(CarType type, Team team, float scale, const sf::Texture& texture, const sf::Texture& bulletTexture)
     : Animation(texture)
@@ -51,13 +52,9 @@ std::vector<sf::Sprite> GameCar::fireBullets()
         sf::FloatRect bulletRect = m_bulletSprite.getGlobalBounds();
         sf::Vector2f carPosition = getPosition();
 
-        for (const auto& pos : m_shootingPositions)
-        {
-            m_bulletSprite.setPosition(
-                carPosition.x + pos.x - bulletRect.width, // / 2,
-                carPosition.y + pos.y - bulletRect.height);
-            bullets.push_back(m_bulletSprite);
-        }
+        const sf::FloatRect rect = getRect();
+        m_bulletSprite.setPosition(carPosition.x + rect.width / 2.0f, carPosition.y + bulletRect.height);
+        bullets.push_back(m_bulletSprite);
 
         m_lastShotTime = elapsed.asMilliseconds();
     }
@@ -76,16 +73,6 @@ void GameCar::initializeCar(CarType type)
         case CarType::Car:
             initializeCar();
             break;
-    }
-}
-
-void GameCar::setScale(float scaleX, float scaleY)
-{
-    Animation::setScale(scaleX, scaleY);
-    for (sf::Vector2f& pos : m_shootingPositions)
-    {
-        pos.x *= scaleX;
-        pos.y *= scaleY;
     }
 }
 
@@ -123,11 +110,6 @@ void GameCar::moveAIWithinBounds(int maxX, float speed)
     }
 }
 
-void GameCar::addShootingPosition(float x, float y)
-{
-    m_shootingPositions.emplace_back(x * m_scaleMultiplier, y * m_scaleMultiplier);
-}
-
 void GameCar::setFiringRate(int milliseconds)
 {
     m_msBetweenShots = milliseconds;
@@ -138,30 +120,27 @@ CarType GameCar::getCarType() const
     return m_carType;
 }
 
-void GameCar::configureBullet(float scaleX, float scaleY)
+void GameCar::configureBullet(float scale)
 {
-    m_bulletSprite.setScale(scaleX, scaleY);
+    m_bulletSprite.setScale(scale, scale);
 }
 
 void GameCar::initializeCar()
 {
-    addShootingPosition(120, 0);
     setMsBetweenFrames(60);
     setFiringRate(100);
     m_damage = 2;
-    setScale(0.2 * m_scaleMultiplier, 0.2 * m_scaleMultiplier);
-    configureBullet(0.3 * m_scaleMultiplier, 0.35 * m_scaleMultiplier);
+    setScale(m_scaleMultiplier, m_scaleMultiplier);
+    configureBullet(m_scaleMultiplier);
     m_health = 15;
 }
 
 void GameCar::initializeTruck()
 {
-    addShootingPosition(40, 200);
-    addShootingPosition(340, 200);
-    setMsBetweenFrames(40);
+    setMsBetweenFrames(50);
     setFiringRate(80);
     m_damage = 1;
-    setScale(0.4 * m_scaleMultiplier, 0.4 * m_scaleMultiplier);
-    configureBullet(0.4 * m_scaleMultiplier, 0.45 * m_scaleMultiplier);
+    setScale(1.2f * m_scaleMultiplier, 1.2f * m_scaleMultiplier);
+    configureBullet(1.1f * m_scaleMultiplier);
     m_health = 20;
 }

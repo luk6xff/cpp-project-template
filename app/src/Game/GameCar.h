@@ -97,17 +97,7 @@ public:
      * @param scaleY The scale factor along the
      * Y-axis.
      */
-    void configureBullet(float scaleX, float scaleY);
-
-    /**
-     * @brief Adds a shooting position relative to
-     * the car's current position.
-     * @param x The x-coordinate of the shooting
-     * position.
-     * @param y The y-coordinate of the shooting
-     * position.
-     */
-    void addShootingPosition(float x, float y);
+    void configureBullet(float scale);
 
     /**
      * @brief Sets the firing rate of the car.
@@ -144,15 +134,6 @@ public:
     bool isCollidedWith(const sf::Sprite& other);
 
     /**
-     * @brief Sets the scale of the car's sprite.
-     * @param scaleX The scale factor along the
-     * X-axis.
-     * @param scaleY The scale factor along the
-     * Y-axis.
-     */
-    void setScale(float scaleX, float scaleY) override;
-
-    /**
      * @brief Retrieves the car type.
      * @return The type of the car (Car or Truck).
      */
@@ -172,13 +153,10 @@ private:
                                 ///< greater X
                                 ///< value.
 
-    sf::Sprite m_bulletSprite;                     ///< Sprite used
-                                                   ///< for bullets.
-    sf::Int32 m_lastShotTime = -1000;              ///< Time since the last shot.
-    int m_msBetweenShots     = 1;                  ///< Milliseconds between each shot.
-    std::vector<sf::Vector2f> m_shootingPositions; ///< Positions from
-                                                   ///< which bullets
-                                                   ///< are fired.
+    sf::Sprite m_bulletSprite;        ///< Sprite used
+                                      ///< for bullets.
+    sf::Int32 m_lastShotTime = -1000; ///< Time since the last shot.
+    int m_msBetweenShots     = 1;     ///< Milliseconds between each shot.
 
     int m_health       = 20;    ///< Health of the car.
     int m_damage       = 1;     ///< Damage the car can inflict.

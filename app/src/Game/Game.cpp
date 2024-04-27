@@ -101,16 +101,6 @@ void Game::initializeStatusTextView()
     if (!m_font.loadFromFile(m_execDirPath / m_execDirPath / "assets/fonts/Jersey25-Regular.ttf"))
     {
         std::cerr << "Failed to load font." << std::endl;
-
-        m_restartText.setFont(m_font);
-        m_restartText.setCharacterSize(48);
-        m_restartText.setFillColor(sf::Color::Red);
-        m_restartText.setString("Press R to restart");
-        sf::FloatRect restartBounds = m_restartText.getLocalBounds();
-        m_restartText.setPosition(
-            (m_screenWidth - restartBounds.width) / 2,
-            (m_screenHeight - restartBounds.height) / 2);
-        return;
     }
 
     m_scoreText.setFont(m_font);
@@ -504,7 +494,7 @@ void Game::restart()
     if (m_player->isInvisible())
         m_player->toggleInvisibility();
     m_player->setHealth(m_maxPlayerHealth);
-    m_player->setPosition((m_screenWidth / 2) - (playerRect.width / 2), m_screenHeight - playerRect.height);
+    m_player->setPosition((m_screenWidth / 2), 0); // m_screenHeight - playerRect.height);
 
     m_playTimeClock.restart();
 }
@@ -542,10 +532,11 @@ void Game::playerMovement()
 void Game::spawnPlayer()
 {
     m_player =
-        std::make_unique<GameCar>(CarType::Car, GameCar::Team::Player, 2.0f, m_playerCarTexture, m_playerBulletTexture);
-    m_player->setPosition(
-        (m_screenWidth / 1.5f) - m_player->getRect().width / 2,
-        m_screenHeight - m_player->getRect().height);
+        std::make_unique<GameCar>(CarType::Car, GameCar::Team::Player, 0.3f, m_playerCarTexture, m_playerBulletTexture);
+    const sf::FloatRect playerRect = m_player->getRect();
+    m_player->setPosition((m_screenWidth / 2 - playerRect.width / 2), m_screenHeight - playerRect.height);
+    std::cout << ">>>>>>>>>Player position: " << m_player->getPosition().x << ", " << m_player->getPosition().y
+              << std::endl;
     m_player->setHealth(m_maxPlayerHealth);
 }
 
@@ -572,7 +563,7 @@ void Game::spawnEnemies()
         int zzz = randNum % (m_enemyCarTextures.size());
         {
             m_enemies.push_back(
-                GameCar{CarType::Car, GameCar::Team::Enemy, 1.4f, m_enemyCarTextures[zzz], m_enemyBulletTexture});
+                GameCar{CarType::Car, GameCar::Team::Enemy, 0.3f, m_enemyCarTextures[zzz], m_enemyBulletTexture});
         }
         // Set position
         int y = (rand() % 2) * m_enemies.back().getRect().height;
