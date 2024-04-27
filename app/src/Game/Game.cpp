@@ -10,7 +10,6 @@ Game::Game(
     , m_timePerFrame(sf::seconds(1.f / 60.f))
     , m_delta(m_timePerFrame.asSeconds())
     , m_lifeScale(0.07f)
-    , m_textScale(2.0f)
     , m_maxPlayerHealth(5)
     , m_playerSpeed(420.f)
     , m_enemyCarSpeed(210.f)
@@ -104,12 +103,12 @@ void Game::initializeStatusTextView()
     }
 
     m_scoreText.setFont(m_font);
-    m_scoreText.setCharacterSize(24);
-    m_scoreText.setFillColor(sf::Color::Green);
+    m_scoreText.setCharacterSize(32);
+    m_scoreText.setFillColor(sf::Color::Red);
 
     m_highScoreText.setFont(m_font);
-    m_highScoreText.setCharacterSize(24);
-    m_highScoreText.setFillColor(sf::Color::Green);
+    m_highScoreText.setCharacterSize(32);
+    m_highScoreText.setFillColor(sf::Color::Red);
 
     m_timeText.setFont(m_font);
     m_timeText.setCharacterSize(24);
@@ -429,12 +428,12 @@ void Game::loadTextures()
     }
 
     // Load enemy textures
-    loadCarTextures(m_enemyCarTextures, m_execDirPath / "assets/sprites/car_", 3);
-    loadCarTextures(m_enemyTruckTextures, m_execDirPath / "assets/sprites/truck_", 0);
+    loadCarTextures(m_enemyCarTextures, m_execDirPath / "assets/sprites/car_", 4);
+    loadCarTextures(m_enemyTruckTextures, m_execDirPath / "assets/sprites/truck_", 1);
 
     // Load explosion textures
-    loadCarTextures(m_enemyExplosionTextures, m_execDirPath / "assets/sprites/enemy_explosion_", 12);
-    loadCarTextures(m_playerExplosionTextures, m_execDirPath / "assets/sprites/player_explosion_", 12);
+    loadCarTextures(m_enemyExplosionTextures, m_execDirPath / "assets/sprites/enemy_explosion_", 13);
+    loadCarTextures(m_playerExplosionTextures, m_execDirPath / "assets/sprites/player_explosion_", 13);
 }
 
 void Game::loadCarTextures(std::vector<sf::Texture>& textures, const std::string& basePath, int count)
@@ -443,7 +442,7 @@ void Game::loadCarTextures(std::vector<sf::Texture>& textures, const std::string
     for (int i = 0; i < count; ++i)
     {
         sf::Texture texture;
-        std::string path = basePath + std::to_string(i + 1) + ".png";
+        std::string path = basePath + std::to_string(i) + ".png";
         if (!texture.loadFromFile(path))
         {
             std::cerr << "Failed to load texture from " << path << std::endl;
@@ -494,7 +493,7 @@ void Game::restart()
     if (m_player->isInvisible())
         m_player->toggleInvisibility();
     m_player->setHealth(m_maxPlayerHealth);
-    m_player->setPosition((m_screenWidth / 2), 0); // m_screenHeight - playerRect.height);
+    m_player->setPosition((m_screenWidth / 2), 0);
 
     m_playTimeClock.restart();
 }
@@ -535,8 +534,6 @@ void Game::spawnPlayer()
         std::make_unique<GameCar>(CarType::Car, GameCar::Team::Player, 0.3f, m_playerCarTexture, m_playerBulletTexture);
     const sf::FloatRect playerRect = m_player->getRect();
     m_player->setPosition((m_screenWidth / 2 - playerRect.width / 2), m_screenHeight - playerRect.height);
-    std::cout << ">>>>>>>>>Player position: " << m_player->getPosition().x << ", " << m_player->getPosition().y
-              << std::endl;
     m_player->setHealth(m_maxPlayerHealth);
 }
 
@@ -549,25 +546,27 @@ void Game::spawnEnemies()
         int randNum = rand() % 100;
 
         // 20% chance for the enemy to be an truck
-        // if (randNum < 20)
-        // {
-        //     m_enemies.push_back(GameCar{
-        //         CarType::Truck,
-        //         GameCar::Team::Enemy,
-        //         (float)m_screenWidth / 800,
-        //         m_enemyTruckTextures[randNum % (m_enemyTruckTextures.size())],
-        //         m_enemyBulletTexture});
-        // }
-        // else
-        int xxx = m_enemyCarTextures.size();
-        int zzz = randNum % (m_enemyCarTextures.size());
+        if (randNum < 20)
         {
-            m_enemies.push_back(
-                GameCar{CarType::Car, GameCar::Team::Enemy, 0.3f, m_enemyCarTextures[zzz], m_enemyBulletTexture});
+            m_enemies.push_back(GameCar{
+                CarType::Truck,
+                GameCar::Team::Enemy,
+                0.4f,
+                m_enemyTruckTextures[randNum % (m_enemyTruckTextures.size())],
+                m_enemyBulletTexture});
+        }
+        else
+        {
+            m_enemies.push_back(GameCar{
+                CarType::Car,
+                GameCar::Team::Enemy,
+                0.3f,
+                m_enemyCarTextures[randNum % (m_enemyCarTextures.size())],
+                m_enemyBulletTexture});
         }
         // Set position
-        int y = (rand() % 2) * m_enemies.back().getRect().height;
-        int x = rand() % (int)(m_screenWidth - m_enemies.back().getRect().width);
+        const auto y = static_cast<uint32_t>(rand() % 2 * m_enemies.back().getRect().height) % (m_screenHeight / 3U);
+        const auto x = rand() % static_cast<int>(m_screenWidth - m_enemies.back().getRect().width);
         m_enemies.back().setPosition(x, y);
 
         m_enemies.back().setFiringRate(500);

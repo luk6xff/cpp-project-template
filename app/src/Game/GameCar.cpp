@@ -137,10 +137,10 @@ void GameCar::initializeCar()
 
 void GameCar::initializeTruck()
 {
-    setMsBetweenFrames(50);
+    setMsBetweenFrames(60);
     setFiringRate(80);
-    m_damage = 1;
+    m_damage = 5;
     setScale(1.2f * m_scaleMultiplier, 1.2f * m_scaleMultiplier);
-    configureBullet(1.1f * m_scaleMultiplier);
-    m_health = 20;
+    configureBullet(1.2f * m_scaleMultiplier);
+    m_health = 30;
 }

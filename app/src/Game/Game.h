@@ -108,8 +108,6 @@ private:
     bool m_isRunning = true; ///< Flag to control the game loop.
     float m_lifeScale;       ///< Scaling factor for the
                              ///< life icons.
-    float m_textScale;       ///< Scaling factor for the
-                             ///< text.
     int m_enemyCount;        ///< Current number of
                              ///< enemies on screen.
     int m_score;             ///< Current score of the player.
