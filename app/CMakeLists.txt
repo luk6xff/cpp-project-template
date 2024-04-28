@@ -21,18 +21,18 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Generate compile commands json file needed for CodeChecker and static analyzers
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Add source subdirectories
-add_subdirectory(thirdparty)
-add_subdirectory(src)
-
-# Generate doxygen documentation
-include(Doxygen)
-Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
-
-# CodeChecker
-include(CodeChecker)
-
 # Add test subdirectory
-# if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#     add_subdirectory(test)
-# endif()
+if (UNIT_TESTS)
+    add_subdirectory(test)
+else()
+    # Add source subdirectories
+    add_subdirectory(thirdparty)
+    add_subdirectory(src)
+
+    # Generate doxygen documentation
+    include(Doxygen)
+    Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
+
+    # CodeChecker
+    include(CodeChecker)
+endif()

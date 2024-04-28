@@ -53,18 +53,21 @@ function(make_test_binary BINARY_NAME LIBS_TO_LINK DIRS_TO_INC TEST_SOURCES)
     project(${BINARY_NAME}Test)
 
     # Set the binary name for the test executable
-    set(BINARY ${PROJECT_NAME}Test)
+    set(BINARY ${BINARY_NAME}Test)
 
     # Create the test executable
     add_executable(${BINARY} ${TEST_SOURCES})
     target_include_directories(${BINARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mock ${CMAKE_CURRENT_BINARY_DIR} ${DIRS_TO_INC})
     target_link_libraries(${BINARY} PUBLIC gmock_main ${LIBS_TO_LINK})
 
-    include(Coverage)
-    AddCoverage(${BINARY})
+    # include(Coverage)
+    # AddCoverage(${BINARY})
+    include(Testing)
+    AddTests(${BINARY})
+    EnableCoverage(${BINARY})
 
     # Register the test with CMake CTest
-    #add_test(NAME ${BINARY} COMMAND ${BINARY} --gtest_output=xml:${BINARY}.xml)
+    add_test(NAME ${BINARY} COMMAND ${BINARY} --gtest_output=xml:${BINARY}.xml)
     include(GoogleTest)
     gtest_discover_tests(${BINARY})
 endfunction()

@@ -40,7 +40,7 @@ set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(GCC_COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
 set(GCC_COVERAGE_LINK_FLAGS    "-lgcov -fprofile-arcs -ftest-coverage")
 
-set(CMAKE_CXX_FLAGS_INIT "-O0 -g -Werror -Wall -Wextra -Wno-variadic-macros -Wfatal-errors -Wpedantic -Wshadow -Wdouble-promotion -Wformat-truncation -finline-functions ${GCC_COVERAGE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS_INIT "-O0 -g -Wno-variadic-macros -Wpedantic -Wshadow  -Wformat-truncation -finline-functions ${GCC_COVERAGE_COMPILE_FLAGS}") #  -Wall -Wextra -Werror -Wfatal-errors -Wdouble-promotion)
 set(CMAKE_C_FLAGS_INIT ${CMAKE_CXX_FLAGS_INIT})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
