@@ -1,25 +1,40 @@
-cmake_minimum_required(VERSION 3.22)
-project(UnitTests LANGUAGES CXX)
+project(unit_tests LANGUAGES CXX)
+
+
+
+
+# Include GoogleTest fetched in the main CMakeLists.txt
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# Enable testing with CTest
+enable_testing()
+# GoolgeTest will be used
+include(GoogleTest)
 
 
 # Set variables
 set(APP_DIR ${CMAKE_SOURCE_DIR}/src)
 set(TEST_BINARY_DIR ${CMAKE_BINARY_DIR}/test)
 
-
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
 # Include packages
-include(Testing)
+#include(Testing)
+# Include the unittest cmake config. Use it for all unitests
+include(UnitTest)
+
 ################################################################################
 # Add your test here:
 add_subdirectory(Configuration)
 ################################################################################
 
 # # Set ctest verbosity
-# add_custom_target(unit_tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+add_custom_target(${PROJECT_NAME} COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
 # # Add code coverage target
 # add_custom_target(code_coverage

@@ -22,7 +22,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add test subdirectory
-if (UNIT_TESTS)
+if (UNIT_TESTS OR INTEGRATION_TESTS OR SYSTEM_TESTS)
     add_subdirectory(test)
 else()
     # Add source subdirectories
@@ -32,7 +32,6 @@ else()
     # Generate doxygen documentation
     include(Doxygen)
     Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
-
     # CodeChecker
     include(CodeChecker)
 endif()

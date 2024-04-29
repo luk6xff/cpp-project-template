@@ -96,7 +96,7 @@ ARGS='-i --rm -a stdin -a stdout -a stderr'
 BUILD_SET_ENV_CMD="cd ${HOME_DIR}"
 APPS_BUILD_CMD="${HOME_DIR}/app/utils/apps_build.sh"
 APPS_RUN_CMD="${HOME_DIR}/app/utils/apps_run.sh"
-UT_BUILD_CMD="cd ${HOME_DIR}/app/ && cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain_Linux_x86_64.cmake -DUNIT_TESTS=ON && cmake --build build --config Debug && ctest -j4 --verbose -R unit_tests"
+UT_BUILD_CMD="cd ${HOME_DIR}/app/ && cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain_Linux_x86_64.cmake -DUNIT_TESTS=ON && cmake --build build --config Debug && cmake --build build -t unit_tests"
 
 CLEAN_CMD="${HOME_DIR}/app/utils/clean.sh"
 

@@ -1,6 +1,3 @@
-# Include the unittest cmake config. Use it for all unitests
-include(UnitTest)
-
 #----------------------------------------------------------------------------------
 # Test setup common
 
@@ -21,83 +18,81 @@ set(APP_INCLUDES
 )
 
 set(APP_LINK_LIBS
-    PUBLIC
-    # Empty
+    ""
 )
 
 set(TEST_SOURCES
     ResolutionTest.cpp
 )
 
-make_test_binary(
+add_unit_test(
     ${APP_LIB_NAME}
     ${APP_DIR}
-    ${APP_SOURCES}
-    ${APP_INCLUDES}
-    ${APP_LINK_LIBS}
-    ${TEST_SOURCES}
+    "${APP_SOURCES}"
+    "${APP_INCLUDES}"
+    "${APP_LINK_LIBS}"
+    "${TEST_SOURCES}"
 )
 
-# #----------------------------------------------------------------------------------
-# # Difficulty test
-# set(APP_LIB_NAME Difficulty)
 
-# # Add all the sources to the library
-# set(APP_SOURCES
-#     ${APP_DIR}/Configuration/Difficulty.cpp
-# )
+#----------------------------------------------------------------------------------
+# Difficulty test
+set(APP_LIB_NAME Difficulty)
 
-# set(APP_INCLUDES
-#     ${APP_DIR}/Configuration
-# )
+# Add all the sources to the library
+set(APP_SOURCES
+    ${APP_DIR}/Configuration/Difficulty.cpp
+)
 
-# set(APP_LINK_LIBS
-#     PUBLIC
-#     # Empty
-# )
+set(APP_INCLUDES
+    ${APP_DIR}/Configuration
+)
 
-# set(TEST_SOURCES
-#     DifficultyTest.cpp
-# )
+set(APP_LINK_LIBS
+    ""
+)
 
-# make_test_binary(
-#     ${APP_LIB_NAME}
-#     ${APP_DIR}
-#     ${APP_SOURCES}
-#     ${APP_INCLUDES}
-#     ${APP_LINK_LIBS}
-#     ${TEST_SOURCES}
-# )
+set(TEST_SOURCES
+    DifficultyTest.cpp
+)
 
-# #----------------------------------------------------------------------------------
-# # ConfigReader test
-# set(APP_LIB_NAME ConfigReader)
+add_unit_test(
+    ${APP_LIB_NAME}
+    ${APP_DIR}
+    "${APP_SOURCES}"
+    "${APP_INCLUDES}"
+    "${APP_LINK_LIBS}"
+    "${TEST_SOURCES}"
+)
 
-# # Add all the sources to the library
-# set(APP_SOURCES
-#     ${APP_DIR}/Configuration/ConfigReader.cpp
-#     ${APP_DIR}/Configuration/Resolution.cpp
-#     ${APP_DIR}/Configuration/Difficulty.cpp
-# )
+#----------------------------------------------------------------------------------
+# ConfigReader test
+set(APP_LIB_NAME ConfigReader)
 
-# set(APP_INCLUDES
-#     ${APP_DIR}/Configuration
-# )
+# Add all the sources to the library
+set(APP_SOURCES
+    ${APP_DIR}/Configuration/ConfigReader.cpp
+    ${APP_DIR}/Configuration/Resolution.cpp
+    ${APP_DIR}/Configuration/Difficulty.cpp
+)
 
-# set(APP_LINK_LIBS
-#     PUBLIC
-#     # Empty
-# )
+set(APP_INCLUDES
+    ${APP_DIR}/Configuration
+)
 
-# set(TEST_SOURCES
-#     ConfigReaderTest.cpp
-# )
+set(APP_LINK_LIBS
+    ""
+)
 
-# make_test_binary(
-#     ${APP_LIB_NAME}
-#     ${APP_DIR}
-#     ${APP_SOURCES}
-#     ${APP_INCLUDES}
-#     ${APP_LINK_LIBS}
-#     ${TEST_SOURCES}
-# )
+set(TEST_SOURCES
+    ConfigReaderTest.cpp
+)
+
+add_unit_test(
+    ${APP_LIB_NAME}
+    ${APP_DIR}
+    "${APP_SOURCES}"
+    "${APP_INCLUDES}"
+    "${APP_LINK_LIBS}"
+    "${TEST_SOURCES}"
+)

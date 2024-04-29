@@ -1,7 +1,14 @@
 #include <gtest/gtest.h>
 #include "Configuration/Difficulty.h"
 
-TEST(DifficultyTests, StringToDifficultyValid) {
+class DifficultyTest : public ::testing::Test {
+protected:
+    void SetUp() override {}
+
+    void TearDown() override {}
+};
+
+TEST_F(DifficultyTest, StringToDifficultyValid) {
     auto easy = Difficulty::stringToDifficulty("easy");
     auto normal = Difficulty::stringToDifficulty("normal");
     auto hard = Difficulty::stringToDifficulty("hard");
@@ -16,12 +23,12 @@ TEST(DifficultyTests, StringToDifficultyValid) {
     EXPECT_EQ(Difficulty::Level::Hard, hard.value());
 }
 
-TEST(DifficultyTests, StringToDifficultyInvalid) {
+TEST_F(DifficultyTest, StringToDifficultyInvalid) {
     auto invalid = Difficulty::stringToDifficulty("invalid");
     EXPECT_FALSE(invalid.has_value());
 }
 
-TEST(DifficultyTests, DifficultyToString) {
+TEST_F(DifficultyTest, DifficultyToString) {
     std::string easyStr = Difficulty::difficultyToString(Difficulty::Level::Easy);
     std::string normalStr = Difficulty::difficultyToString(Difficulty::Level::Normal);
     std::string hardStr = Difficulty::difficultyToString(Difficulty::Level::Hard);

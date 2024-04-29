@@ -1,18 +1,15 @@
-cmake_minimum_required(VERSION 3.22)
-project(MyProjectTests LANGUAGES CXX)
+project(tests)
 
-# enable_testing()
 
-# # Include GoogleTest fetched in the main CMakeLists.txt
-# include(FetchContent)
-# FetchContent_Declare(
-#   googletest
-#   URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-# )
-# # For Windows: Prevent overriding the parent project's compiler/linker settings
-# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-# FetchContent_MakeAvailable(googletest)
+if (UNIT_TESTS)
+  add_subdirectory(unit)
+endif()
 
-add_subdirectory(unit)
-#add_subdirectory(integration)
-#add_subdirectory(functional)
+if (INTEGRATION_TESTS)
+  add_subdirectory(integration)
+endif()
+
+if (SYSTEM_TESTS)
+  add_subdirectory(system)
+endif()
+

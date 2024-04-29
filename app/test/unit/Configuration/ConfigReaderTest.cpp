@@ -36,8 +36,21 @@ TEST_F(ConfigReaderTest, LoadSettingsFromFile_ValidSettings_CallsParseCorrectly)
     ConfigReader reader(dummyConfigPath, mockFileStreamFactory);
     reader.loadSettingsFromFile(res, dif);
 
-    // Assert expected settings were parsed
     ASSERT_EQ(res, Resolution::Setting::h960w1280);
     ASSERT_EQ(dif, Difficulty::Level::Hard);
 }
 
+TEST_F(ConfigReaderTest, LoadSettingsFromFile_MixedValidInvalidSettings_HandlesCorrectly) {
+    MockInputStream* mockInput = new MockInputStream("#Configuration File\nresolution 960x1280\ninvalid entry\ndifficulty hard\n");
+    Resolution::Setting res;
+    Difficulty::Level dif;
+
+    EXPECT_CALL(mockFileStreamFactory, createInputStream(_))
+        .WillOnce(Return(ByMove(std::unique_ptr<std::istringstream>(mockInput))));
+
+    ConfigReader reader(dummyConfigPath, mockFileStreamFactory);
+    reader.loadSettingsFromFile(res, dif);
+
+    ASSERT_EQ(res, Resolution::Setting::h960w1280);
+    ASSERT_EQ(dif, Difficulty::Level::Hard);
+}
