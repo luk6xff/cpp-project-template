@@ -11,10 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set the build type - LU_TODO: - Move this to the command line
 set(CMAKE_BUILD_TYPE Debug)
 
-# Set binary output directory and install prefix
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
-
 # Set the cmak module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -23,15 +19,24 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add test subdirectory
 if (UNIT_TESTS OR INTEGRATION_TESTS OR SYSTEM_TESTS)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/test/bin)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+    # Add source subdirectories
     add_subdirectory(test)
 else()
+    # Set Install prefix
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
     # Add source subdirectories
     add_subdirectory(thirdparty)
     add_subdirectory(src)
-
     # Generate doxygen documentation
     include(Doxygen)
     Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
     # CodeChecker
     include(CodeChecker)
 endif()
+
+# Set binary output directory
+
+

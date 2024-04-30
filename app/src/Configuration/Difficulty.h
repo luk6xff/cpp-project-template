@@ -13,21 +13,19 @@
  * to convert these levels to and from string
  * representations.
  */
-namespace Difficulty
-{
+namespace Difficulty {
 
 /**
  * @enum Level
  * @brief Enumerates standard game difficulty
  * levels.
  */
-enum class Level
-{
-    Easy,   ///< Represents an easy difficulty
-            ///< level.
-    Normal, ///< Represents a normal difficulty
-            ///< level.
-    Hard    ///< Represents a hard difficulty level.
+enum class Level {
+  Easy,   ///< Represents an easy difficulty
+          ///< level.
+  Normal, ///< Represents a normal difficulty
+          ///< level.
+  Hard    ///< Represents a hard difficulty level.
 };
 
 /**
@@ -50,5 +48,5 @@ std::string difficultyToString(Level difficulty);
  * is valid, or an empty optional if the string
  * does not match a known difficulty level.
  */
-std::optional<Level> stringToDifficulty(const std::string& str);
+std::optional<Level> stringToDifficulty(const std::string &str);
 } // namespace Difficulty

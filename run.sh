@@ -79,11 +79,10 @@ DOCKER_IMG_TO_RUN="${DOCKER_IMG}"
 DOCKER_IMAGE_FULL_NAME="jfrog.luktec.com/docker_images/${PROJECT_NAME}"
 # Project host root directory
 PROJECT_ROOT_PATH=${CURR_DIR}
-# Apps dir path
-APPS_DIR=${PROJECT_ROOT_PATH}
+# Apps directory path in docker container
+APPS_DIR=${PROJECT_ROOT_PATH}/app
 # Docker container home directory paths
 HOME_DIR="/home/${USER}"
-DOCKER_PROJECT_ROOT="${PROJECT_ROOT_PATH}" #"${HOME_DIR}"
 # Docker file dir path
 DOCKERFILE_PATH="ci"
 
@@ -92,13 +91,15 @@ ENTRY_CMD="/bin/bash"
 RUN_CMD=${ENTRY_CMD}
 ARGS='-i --rm -a stdin -a stdout -a stderr'
 
-# Commands
-BUILD_SET_ENV_CMD="cd ${HOME_DIR}"
-APPS_BUILD_CMD="${HOME_DIR}/app/utils/apps_build.sh"
-APPS_RUN_CMD="${HOME_DIR}/app/utils/apps_run.sh"
-UT_BUILD_CMD="cd ${HOME_DIR}/app/ && cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain_Linux_x86_64.cmake -DUNIT_TESTS=ON && cmake --build build --config Debug && cmake --build build -t unit_tests" # && cmake --build build -t unit_tests_post_build"
+echo ">>> Running script: ${SCRIPT_NAME} <<<"
 
-CLEAN_CMD="${HOME_DIR}/app/utils/clean.sh"
+# Project specific build commands
+BUILD_SET_ENV_CMD="cd ${APPS_DIR}"
+
+APPS_BUILD_CMD="cmake -S . -B build && cmake --build build --config Debug && cmake --build build -t docs" # cmake --build build -t codechecker && cmake --install build"
+APPS_RUN_CMD="./build/bin/${PROJECT_NAME}"
+UT_BUILD_CMD="cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain_Linux_x86_64.cmake -DUNIT_TESTS=ON && cmake --build build --config Debug && cmake --build build -t unit_tests"
+CLEAN_CMD="rm -rf build"
 
 #########################################################################################
 ###  NOTE!!! Modify DOCKER_TAG variable only when a new image version is gonna be crated
@@ -138,13 +139,16 @@ case "$OPT" in
 		exec > /dev/null 2>&1
 		PRINT_RESULTS=false;;
 	"-a"|"--app" )
-		RUN_CMD="time (${APPS_BUILD_CMD}; exit 0)"
+		RUN_CMD="time (${CLEAN_CMD} && ${APPS_BUILD_CMD}; exit 0)"
 		CMD=_build_all;;
 	"-A"|"--app-noclean" )
-		RUN_CMD="time (${CLEAN_CMD} && ${APPS_BUILD_CMD})"
+		RUN_CMD="time (${APPS_BUILD_CMD})"
 		CMD=_build_all;;
 	"-u"|"--unit-tests" )
 		RUN_CMD="time (${CLEAN_CMD} && ${UT_BUILD_CMD})"
+		CMD=_build_all;;
+	"-U"|"--unit-tests-noclean" )
+		RUN_CMD="time (${UT_BUILD_CMD})"
 		CMD=_build_all;;
 	"-i"|"--image" )
 		RUN_CMD="time (${CLEAN_CMD}; exit 0)"
@@ -340,7 +344,7 @@ _run() {
 		-v /tmp/:/tmp \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		-v ~/.ssh:/home/${USER}/.ssh \
-		--volume ${APPS_DIR}:${HOME_DIR} \
+		--volume ${APPS_DIR}:${APPS_DIR} \
 		${DOCKER_IMG}:${DOCKER_TAG} ${ENTRY_CMD} -c "${BUILD_SET_ENV_CMD} && ${RUN_CMD}"
 	exit 0
 }
