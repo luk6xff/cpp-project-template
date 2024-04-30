@@ -10,11 +10,11 @@ function(AddMemcheck target)
 
   add_custom_target(memcheck-${target}
     COMMAND ${MEMCHECK_PATH}/memcheck_runner.sh -o
-            "${CMAKE_BINARY_DIR}/valgrind/report"
+            "${UNIT_TESTS_REPORT_DIR}/valgrind/report"
             -- $<TARGET_FILE:${target}>
     COMMAND ${MEMCHECK_PATH}/generate_html_report.sh
-            -i "${CMAKE_BINARY_DIR}/valgrind"
-            -o "${CMAKE_BINARY_DIR}/valgrind"
+            -i "${UNIT_TESTS_REPORT_DIR}/valgrind"
+            -o "${UNIT_TESTS_REPORT_DIR}/valgrind"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 endfunction()

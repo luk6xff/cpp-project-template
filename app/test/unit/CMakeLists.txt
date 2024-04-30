@@ -15,7 +15,8 @@ FetchContent_MakeAvailable(googletest)
 
 # Set variables
 set(APP_DIR ${CMAKE_SOURCE_DIR}/src)
-set(UNIT_TEST_BINARY_DIR ${CMAKE_BINARY_DIR}/test/unit)
+set(UNIT_TESTS_BINARY_DIR ${CMAKE_BINARY_DIR}/test/unit)
+set(UNIT_TESTS_REPORT_DIR ${CMAKE_BINARY_DIR}/test/unit/report)
 
 # Enable testing with CTest
 enable_testing()
@@ -34,16 +35,16 @@ add_subdirectory(Configuration)
 # Set ctest target
 add_custom_target(${PROJECT_NAME}
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose --output-on-failure || true
-    WORKING_DIRECTORY ${UNIT_TEST_BINARY_DIR}
+    WORKING_DIRECTORY ${UNIT_TESTS_BINARY_DIR}
 )
 
 # Add post unit test build command
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${UNIT_TEST_BINARY_DIR}/unit_tests_report
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/utils/unit_tests_report.py ${UNIT_TEST_BINARY_DIR} ${UNIT_TEST_BINARY_DIR}/unit_tests_report
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${UNIT_TESTS_REPORT_DIR}
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/utils/unit_tests_report.py ${UNIT_TESTS_BINARY_DIR} ${UNIT_TESTS_REPORT_DIR}
     COMMAND make coverage-all
-    WORKING_DIRECTORY ${UNIT_TEST_BINARY_DIR}
+    WORKING_DIRECTORY ${UNIT_TESTS_BINARY_DIR}
     COMMENT "Generating HTML reports from XML unit_test results."
 )
 
