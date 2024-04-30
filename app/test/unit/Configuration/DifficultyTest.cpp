@@ -1,17 +1,24 @@
-#include <gtest/gtest.h>
 #include "Configuration/Difficulty.h"
 
-class DifficultyTest : public ::testing::Test {
-protected:
-    void SetUp() override {}
+#include <gtest/gtest.h>
 
-    void TearDown() override {}
+class DifficultyTest : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
+    }
 };
 
-TEST_F(DifficultyTest, StringToDifficultyValid) {
-    auto easy = Difficulty::stringToDifficulty("easy");
+TEST_F(DifficultyTest, StringToDifficultyValid)
+{
+    auto easy   = Difficulty::stringToDifficulty("easy");
     auto normal = Difficulty::stringToDifficulty("normal");
-    auto hard = Difficulty::stringToDifficulty("hard");
+    auto hard   = Difficulty::stringToDifficulty("hard");
 
     EXPECT_TRUE(easy.has_value());
     EXPECT_EQ(Difficulty::Level::Easy, easy.value());
@@ -23,15 +30,17 @@ TEST_F(DifficultyTest, StringToDifficultyValid) {
     EXPECT_EQ(Difficulty::Level::Hard, hard.value());
 }
 
-TEST_F(DifficultyTest, StringToDifficultyInvalid) {
+TEST_F(DifficultyTest, StringToDifficultyInvalid)
+{
     auto invalid = Difficulty::stringToDifficulty("invalid");
     EXPECT_FALSE(invalid.has_value());
 }
 
-TEST_F(DifficultyTest, DifficultyToString) {
-    std::string easyStr = Difficulty::difficultyToString(Difficulty::Level::Easy);
+TEST_F(DifficultyTest, DifficultyToString)
+{
+    std::string easyStr   = Difficulty::difficultyToString(Difficulty::Level::Easy);
     std::string normalStr = Difficulty::difficultyToString(Difficulty::Level::Normal);
-    std::string hardStr = Difficulty::difficultyToString(Difficulty::Level::Hard);
+    std::string hardStr   = Difficulty::difficultyToString(Difficulty::Level::Hard);
 
     EXPECT_EQ("easy", easyStr);
     EXPECT_EQ("normal", normalStr);

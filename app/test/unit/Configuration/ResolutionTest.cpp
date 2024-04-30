@@ -1,17 +1,22 @@
-#include <gtest/gtest.h>
 #include "Configuration/Resolution.h"
 
-class ResolutionTest : public ::testing::Test {
+#include <gtest/gtest.h>
+
+class ResolutionTest : public ::testing::Test
+{
 protected:
-    void SetUp() override {
+    void SetUp() override
+    {
     }
-    void TearDown() override {
+    void TearDown() override
+    {
     }
 };
 
 // Test for converting strings to Resolution::Setting enum values
-TEST_F(ResolutionTest, StringToSettingValid) {
-    auto res600x800 = Resolution::stringToResolution("600x800");
+TEST_F(ResolutionTest, StringToSettingValid)
+{
+    auto res600x800  = Resolution::stringToResolution("600x800");
     auto res768x1024 = Resolution::stringToResolution("768x1024");
     auto res864x1152 = Resolution::stringToResolution("864x1152");
     auto res960x1280 = Resolution::stringToResolution("960x1280");
@@ -30,14 +35,16 @@ TEST_F(ResolutionTest, StringToSettingValid) {
 }
 
 // Test for invalid string input
-TEST_F(ResolutionTest, StringToSettingInvalid) {
+TEST_F(ResolutionTest, StringToSettingInvalid)
+{
     auto invalid = Resolution::stringToResolution("1000x1000");
     EXPECT_FALSE(invalid.has_value());
 }
 
 // Test for converting Resolution::Setting enum values to strings
-TEST_F(ResolutionTest, SettingToString) {
-    std::string str600x800 = Resolution::resolutionToStr(Resolution::Setting::h600w800);
+TEST_F(ResolutionTest, SettingToString)
+{
+    std::string str600x800  = Resolution::resolutionToStr(Resolution::Setting::h600w800);
     std::string str768x1024 = Resolution::resolutionToStr(Resolution::Setting::h768w1024);
     std::string str864x1152 = Resolution::resolutionToStr(Resolution::Setting::h864w1152);
     std::string str960x1280 = Resolution::resolutionToStr(Resolution::Setting::h960w1280);
@@ -49,8 +56,9 @@ TEST_F(ResolutionTest, SettingToString) {
 }
 
 // Test for getting resolution dimensions from Setting enum values
-TEST_F(ResolutionTest, GetIntFromResolution) {
-    auto res600x800 = Resolution::getIntFromResolution(Resolution::Setting::h600w800);
+TEST_F(ResolutionTest, GetIntFromResolution)
+{
+    auto res600x800  = Resolution::getIntFromResolution(Resolution::Setting::h600w800);
     auto res768x1024 = Resolution::getIntFromResolution(Resolution::Setting::h768w1024);
     auto res864x1152 = Resolution::getIntFromResolution(Resolution::Setting::h864w1152);
     auto res960x1280 = Resolution::getIntFromResolution(Resolution::Setting::h960w1280);

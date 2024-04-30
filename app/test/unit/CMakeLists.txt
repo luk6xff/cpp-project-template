@@ -24,8 +24,6 @@ include(GoogleTest)
 include(UnitTest)
 include(Coverage)
 CombineCoverageReports()
-include(ClangFormat)
-Format(${PROJECT_NAME} .)
 
 ################################################################################
 # Add your test here:
@@ -48,3 +46,6 @@ add_custom_command(
     COMMENT "Generating HTML reports from XML unit_test results."
 )
 
+# Format Unit Tests source code
+include(ClangFormat)
+Format(${PROJECT_NAME} .)
