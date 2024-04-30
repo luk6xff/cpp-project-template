@@ -18,10 +18,10 @@ function(AddCoverage target)
 
   # This custom target now only initializes coverage counters and runs tests
   add_custom_target(coverage-${target}
-    COMMAND ${LCOV_PATH} --directory ${CMAKE_BINARY_DIR} --zerocounters
+    COMMAND ${LCOV_PATH} --directory ${UNIT_TESTS_BINARY_DIR} --zerocounters
     COMMAND $<TARGET_FILE:${target}>
-    COMMAND ${LCOV_PATH} --directory ${CMAKE_BINARY_DIR} --capture --output-file ${COVERAGE_OUTPUT_DIR}/coverage-${target}.info
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${LCOV_PATH} --directory ${UNIT_TESTS_BINARY_DIR} --capture --output-file ${COVERAGE_OUTPUT_DIR}/coverage-${target}.info
+    WORKING_DIRECTORY ${UNIT_TESTS_BINARY_DIR}
     COMMENT "Running coverage for target ${target}..."
   )
 endfunction()

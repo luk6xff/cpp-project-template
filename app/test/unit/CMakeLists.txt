@@ -1,8 +1,6 @@
 project(unit_tests LANGUAGES CXX)
 
 
-
-
 # Include GoogleTest fetched in the main CMakeLists.txt
 include(FetchContent)
 FetchContent_Declare(
@@ -26,6 +24,8 @@ include(GoogleTest)
 include(UnitTest)
 include(Coverage)
 CombineCoverageReports()
+include(ClangFormat)
+Format(${PROJECT_NAME} .)
 
 ################################################################################
 # Add your test here:
