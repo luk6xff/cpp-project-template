@@ -143,7 +143,6 @@ def xml_to_html(xml_path):
 
 
 
-
 def main(xml_dir, output_dir):
     combined_xml_path = os.path.join(output_dir, "combined_results.xml")
     combined_xml_path = combine_xml_files(xml_dir, combined_xml_path)

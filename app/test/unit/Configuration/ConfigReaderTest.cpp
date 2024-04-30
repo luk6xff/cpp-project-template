@@ -51,6 +51,6 @@ TEST_F(ConfigReaderTest, LoadSettingsFromFile_MixedValidInvalidSettings_HandlesC
     ConfigReader reader(dummyConfigPath, mockFileStreamFactory);
     reader.loadSettingsFromFile(res, dif);
 
-    ASSERT_EQ(Resolution::Setting::h768w1024, Resolution::Setting::h960w1280);
+    ASSERT_EQ(res, Resolution::Setting::h600w800);//Resolution::Setting::h960w1280); - Call unit test failure
     ASSERT_EQ(dif, Difficulty::Level::Hard);
 }

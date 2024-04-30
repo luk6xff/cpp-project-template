@@ -8,7 +8,7 @@ function(AddMemcheck target)
   FetchContent_MakeAvailable(memcheck-cover)
   set(MEMCHECK_PATH ${memcheck-cover_SOURCE_DIR}/bin)
 
-  add_custom_target(memcheck
+  add_custom_target(memcheck-${target}
     COMMAND ${MEMCHECK_PATH}/memcheck_runner.sh -o
             "${CMAKE_BINARY_DIR}/valgrind/report"
             -- $<TARGET_FILE:${target}>

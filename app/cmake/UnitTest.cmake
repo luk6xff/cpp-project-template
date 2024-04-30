@@ -68,9 +68,15 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
         ${APP_LIB_NAME}
     )
 
+    # Enable coberage and Memcheck
+    include(Coverage)
+    include(Memcheck)
+
+    AddCoverage(${TEST_BINARY})
     # Register the test with CMake CTest
     gtest_discover_tests(${TEST_BINARY}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         XML_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
     )
+    AddMemcheck(${TEST_BINARY})
 endfunction()
