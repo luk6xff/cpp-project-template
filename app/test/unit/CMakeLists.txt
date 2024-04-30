@@ -34,7 +34,17 @@ add_subdirectory(Configuration)
 ################################################################################
 
 # # Set ctest verbosity
-add_custom_target(${PROJECT_NAME} COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+add_custom_target(${PROJECT_NAME}
+    COMMAND ${CMAKE_CTEST_COMMAND} --verbose --output-on-failure || true
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/unit_tests_report
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/utils/unit_tests_report.py ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/unit_tests_report
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating HTML reports from XML unit_test results."
+)
 
 # # Add code coverage target
 # add_custom_target(code_coverage
