@@ -4,7 +4,7 @@
 # Prerequisite: qnx env has to be sourced before using.
 # e.g.: source <qnx-sdp-path>/qnx710/qnxsdp-env.sh
 # Specify toolchain file in cmake generation via
-# cmake -D CMAKE_TOOLCHAIN_FILE=Toolchain_qnx-aarch64le.cmake -D OTHER_FLAGS ..
+# cmake -D CMAKE_TOOLCHAIN_FILE=Toolchain/Qnx_aarch64le.cmake -D OTHER_FLAGS ..
 #
 # Author: Lukasz Uszko <lukasz.uszko@gmail.com>
 ################################################################################

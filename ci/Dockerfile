@@ -113,6 +113,7 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     # Other tools
     lsb-release \
     jq \
+    gawk \
     ###
     # clean up
     && rm -rf /var/lib/apt/lists/*
@@ -144,7 +145,7 @@ ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
 # Set the report-converter permissions
 RUN chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter
 # Expose the default port used by CodeChecker server
-EXPOSE 8001
+EXPOSE 8999
 
 ################################################################################
 # Install additional packages required for your project

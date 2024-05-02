@@ -1,5 +1,5 @@
 # Include libraries
-include(GetSFML)
+include(Project/GetSFML)
 
 # Include directories
 include_directories(
@@ -44,10 +44,7 @@ target_compile_features(
     PRIVATE cxx_std_17
 )
 
-
-#install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 #install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_INSTALL_PREFIX}/assets) LU_TODO: Fix this
-#file(COPY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION {CMAKE_INSTALL_PREFIX}/assets)
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -55,7 +52,6 @@ add_custom_command(
             ${CMAKE_INSTALL_PREFIX}/assets
     COMMENT "Copying assets to build directory"
 )
-
 
 
 # Clang format

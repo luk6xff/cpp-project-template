@@ -7,9 +7,7 @@ set(PROJECT_TARGET ${PROJECT_NAME})
 # C++17 Standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Set the build type - LU_TODO: - Move this to the command line
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set the cmak module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -21,6 +19,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if (UNIT_TESTS OR INTEGRATION_TESTS OR SYSTEM_TESTS)
     set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/test/bin)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+    # Debug always for tests
+    set(CMAKE_BUILD_TYPE Debug)
     # Add source subdirectories
     add_subdirectory(test)
 else()

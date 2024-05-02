@@ -98,7 +98,7 @@ BUILD_SET_ENV_CMD="cd ${APPS_DIR}"
 
 APPS_BUILD_CMD="cmake -S . -B build && cmake --build build --config Debug && cmake --build build -t docs" # cmake --build build -t codechecker && cmake --install build"
 APPS_RUN_CMD="./build/bin/${PROJECT_NAME}"
-UT_BUILD_CMD="cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain_Linux_x86_64.cmake -DUNIT_TESTS=ON && cmake --build build --config Debug && cmake --build build -t unit_tests"
+UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCOMPILER_CHOICE=CLANG -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build --config Debug && cmake --build build -t unit_tests"
 CLEAN_CMD="rm -rf build"
 
 #########################################################################################
@@ -241,7 +241,7 @@ _check_and_install_docker_multiarch() {
 }
 
 _format_code() {
-	cd ${PROJECT_ROOT_PATH} && npx prettier --write .
+	cd ${PROJECT_ROOT_PATH}
 }
 
 _pull_image(){

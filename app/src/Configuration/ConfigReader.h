@@ -10,7 +10,7 @@
 #include <string>
 
 /**
- * @interface IFileStreamFactory
+ * @class IFileStreamFactory
  * @brief Interface for creating file streams,
  * abstracting the file stream creation mechanism.
  *

@@ -34,8 +34,6 @@
 #   )
 #
 function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LIBS TEST_SOURCES)
-    # Optionally handle sanitizers via a CMake option
-    option(ENABLE_SANITIZERS "Enable address and undefined behavior sanitizers for this target." OFF)
 
     # Create the library target
     add_library(${APP_LIB_NAME} STATIC ${APP_SOURCES})
@@ -43,11 +41,6 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
 
     if(NOT "${APP_LINK_LIBS}" STREQUAL "")
         target_link_libraries(${APP_LIB_NAME} PUBLIC ${APP_LINK_LIBS})
-    endif()
-
-    if(ENABLE_SANITIZERS)
-        target_compile_options(${APP_LIB_NAME} PRIVATE -fsanitize=address -fsanitize=undefined)
-        target_link_options(${APP_LIB_NAME} PRIVATE -fsanitize=address -fsanitize=undefined)
     endif()
 
     # Set the name for the test executable
@@ -68,7 +61,7 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
         ${APP_LIB_NAME}
     )
 
-    # Enable coberage and Memcheck
+    # Enable coverage and Memcheck
     include(Coverage)
     include(Memcheck)
 
@@ -79,4 +72,13 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
         XML_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
     )
     AddMemcheck(${TEST_BINARY})
+
+    # Enable sanitizers
+    include(Sanitizers)
+    option(ASAN "Enable AddressSanitizer" ON)
+    option(TSAN "Enable ThreadSanitizer" OFF)
+    option(UBSAN "Enable UndefinedBehaviorSanitizer" ON)
+    option(MSAN "Enable MemorySanitizer" OFF)
+    enable_sanitizers(${TEST_BINARY})
+
 endfunction()
