@@ -58,3 +58,6 @@ add_custom_command(
 include(ClangFormat)
 Format(${PROJECT_NAME} .)
 
+# Valgrind memcheck for the application
+include(Memcheck)
+AddMemcheck(${PROJECT_NAME} ${CMAKE_BINARY_DIR})

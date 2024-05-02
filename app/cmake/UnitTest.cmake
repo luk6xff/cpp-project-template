@@ -73,7 +73,7 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
 
     # Memcheck
     include(Memcheck)
-    AddMemcheck(${TEST_BINARY})
+    AddMemcheck(${TEST_BINARY} ${UNIT_TESTS_REPORT_DIR})
 
     # Valgrind
     include(Valgrind)

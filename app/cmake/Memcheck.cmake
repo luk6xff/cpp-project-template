@@ -1,4 +1,4 @@
-function(AddMemcheck target)
+function(AddMemcheck target output_dir)
   include(FetchContent)
   FetchContent_Declare(
     memcheck-cover
@@ -10,11 +10,11 @@ function(AddMemcheck target)
 
   add_custom_target(memcheck-${target}
     COMMAND ${MEMCHECK_PATH}/memcheck_runner.sh -o
-            "${UNIT_TESTS_REPORT_DIR}/valgrind/report"
+            "${output_dir}/memcheck_report/report"
             -- $<TARGET_FILE:${target}>
     COMMAND ${MEMCHECK_PATH}/generate_html_report.sh
-            -i "${UNIT_TESTS_REPORT_DIR}/valgrind"
-            -o "${UNIT_TESTS_REPORT_DIR}/valgrind"
+            -i "${output_dir}/memcheck_report"
+            -o "${output_dir}/memcheck_report"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 endfunction()
