@@ -75,6 +75,10 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
     include(Memcheck)
     AddMemcheck(${TEST_BINARY})
 
+    # Valgrind
+    include(Valgrind)
+    AddValgrind(${TEST_BINARY})
+
     # Enable sanitizers
     include(Sanitizers)
     option(ASAN "Enable AddressSanitizer" OFF)
