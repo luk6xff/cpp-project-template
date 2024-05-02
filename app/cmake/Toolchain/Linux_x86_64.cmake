@@ -38,22 +38,24 @@ else()
     message(FATAL_ERROR "Invalid compiler choice: ${COMPILER_CHOICE}. Please select GCC or CLANG.")
 endif()
 
+
 # Debug and Release flags
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(COMPILER_SPECIFIC_FLAGS "${COMPILER_SPECIFIC_FLAGS} -O0 -g")
+  # Coverage flags LU_TODO: move it to Coverage.cmake
   if (COMPILER_CHOICE STREQUAL "GCC")
-    set(COVERAGE_COMPILE_FLAGS "${COVERAGE_COMPILE_FLAGS} -fprofile-arcs -ftest-coverage")
+    set(COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
     set(COVERAGE_LINK_FLAGS "-lgcov -fprofile-arcs -ftest-coverage")
   elseif(COMPILER_CHOICE STREQUAL "CLANG")
     set(COVERAGE_COMPILE_FLAGS "--coverage")
     set(COVERAGE_LINK_FLAGS "--coverage")
-endif()
+  endif()
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(COMPILER_SPECIFIC_FLAGS "${COMPILER_SPECIFIC_FLAGS} -O3")
 endif()
 
 # Combining all flags
-set(CMAKE_CXX_FLAGS_INIT "${COMPILER_SPECIFIC_FLAGS} ${COVERAGE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS_INIT "${CMAKE_CXX_FLAGS_INIT} ${COMPILER_SPECIFIC_FLAGS} ${COVERAGE_COMPILE_FLAGS}")
 
 # CMake configurations for security-hardened C/C++ builds
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -65,8 +67,7 @@ add_compile_options(-fwrapv -fno-delete-null-pointer-checks)
 add_compile_options(-fPIE -fPIC)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
 
-
-# Set the compiler flags
+# Set the final compiler/linker flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_INIT}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${COVERAGE_LINK_FLAGS}")
 
