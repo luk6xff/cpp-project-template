@@ -98,7 +98,7 @@ BUILD_SET_ENV_CMD="cd ${APPS_DIR}"
 
 APPS_BUILD_CMD="cmake -S . -B build && cmake --build build --config Debug && cmake --build build -t docs" # cmake --build build -t codechecker && cmake --install build"
 APPS_RUN_CMD="./build/bin/${PROJECT_NAME}"
-UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCOMPILER_CHOICE=CLANG -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build --config Debug && cmake --build build -t unit_tests"
+UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCOMPILER_CHOICE=GCC -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build --config Debug && cmake --build build -t unit_tests"
 CLEAN_CMD="rm -rf build"
 
 #########################################################################################
@@ -341,6 +341,7 @@ _run() {
 		-e APPS_REVISION=$(git describe --always --long --abbrev=16) \
 		-e APPS_IMAGE_VERSION=${DOCKER_IMG}:${DOCKER_TAG} \
 		-e DISPLAY=$DISPLAY \
+		-v /etc/localtime:/etc/localtime:ro \
 		-v /tmp/:/tmp \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		-v ~/.ssh:/home/${USER}/.ssh \

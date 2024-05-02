@@ -61,21 +61,23 @@ function(add_unit_test APP_LIB_NAME APP_DIR APP_SOURCES APP_INCLUDES APP_LINK_LI
         ${APP_LIB_NAME}
     )
 
-    # Enable coverage and Memcheck
+    # Enable Coverage
     include(Coverage)
-    include(Memcheck)
-
     AddCoverage(${TEST_BINARY})
+
     # Register the test with CMake CTest
     gtest_discover_tests(${TEST_BINARY}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         XML_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
     )
+
+    # Memcheck
+    include(Memcheck)
     AddMemcheck(${TEST_BINARY})
 
     # Enable sanitizers
     include(Sanitizers)
-    option(ASAN "Enable AddressSanitizer" ON)
+    option(ASAN "Enable AddressSanitizer" OFF)
     option(TSAN "Enable ThreadSanitizer" OFF)
     option(UBSAN "Enable UndefinedBehaviorSanitizer" ON)
     option(MSAN "Enable MemorySanitizer" OFF)

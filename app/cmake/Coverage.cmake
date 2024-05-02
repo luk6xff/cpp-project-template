@@ -13,8 +13,18 @@ function(AddCoverage target)
   find_program(GENHTML_PATH genhtml REQUIRED)
 
   # Add coverage flags
-  target_compile_options(${target} PRIVATE --coverage -fno-inline)
-  target_link_options(${target} PUBLIC --coverage)
+
+  if (COMPILER_CHOICE STREQUAL "GCC")
+    set(COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
+    set(COVERAGE_LINK_FLAGS "-lgcov -fprofile-arcs -ftest-coverage")
+    target_compile_options(${target} PRIVATE -fprofile-arcs -ftest-coverage)
+    target_link_options(${target} PUBLIC -lgcov -fprofile-arcs -ftest-coverage)
+  elseif(COMPILER_CHOICE STREQUAL "CLANG")
+      set(COVERAGE_COMPILE_FLAGS "--coverage")
+      set(COVERAGE_LINK_FLAGS "--coverage")
+  endif()
+  # target_compile_options(${target} PRIVATE --coverage -fno-inline)
+  # target_link_options(${target} PUBLIC --coverage)
 
   # This custom target now only initializes coverage counters and runs tests
   add_custom_target(coverage-${target}
@@ -22,7 +32,7 @@ function(AddCoverage target)
     COMMAND $<TARGET_FILE:${target}>
     COMMAND ${LCOV_PATH} --directory ${UNIT_TESTS_BINARY_DIR} --capture --output-file ${COVERAGE_OUTPUT_DIR}/coverage-${target}.info
     WORKING_DIRECTORY ${UNIT_TESTS_BINARY_DIR}
-    COMMENT "Running coverage for target ${target}..."
+    COMMENT "Running coverage for target: ${target}..."
   )
 endfunction()
 
@@ -38,8 +48,6 @@ function(CombineCoverageReports)
     COMMAND ${LCOV_PATH} --directory ${UNIT_TESTS_BINARY_DIR} --capture --output-file ${COVERAGE_OUTPUT_DIR}/combined_coverage.info
     COMMAND ${LCOV_PATH} --remove  ${COVERAGE_OUTPUT_DIR}/combined_coverage.info '/usr/*' '_deps/*' '*/test/*' '*/googletest/*' '*/gmock/*' --output-file ${COVERAGE_OUTPUT_DIR}/filtered_coverage.info
     COMMAND ${GENHTML_PATH} --output-directory ${UNIT_TESTS_REPORT_DIR}/coverage-report --show-details --rc genhtml_branch_coverage=1 --legend --title "Overall Unit Tests Coverage" ${COVERAGE_OUTPUT_DIR}/filtered_coverage.info
-    COMMAND ${CMAKE_COMMAND} -E remove ${COVERAGE_OUTPUT_DIR}/combined_coverage.info  ${COVERAGE_OUTPUT_DIR}/filtered_coverage.info
-    WORKING_DIRECTORY  ${UNIT_TESTS_BINARY_DIR}
     COMMENT "Generating combined coverage report..."
   )
 endfunction()

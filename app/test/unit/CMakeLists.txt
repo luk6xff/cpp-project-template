@@ -56,7 +56,7 @@ add_subdirectory(Configuration)
 
 # Set ctest target
 add_custom_target(${PROJECT_NAME}
-    COMMAND ${CMAKE_CTEST_COMMAND} --verbose --output-on-failure || true
+    COMMAND ${CMAKE_CTEST_COMMAND} --timeout 1 --verbose --output-on-failure || true
     WORKING_DIRECTORY ${UNIT_TESTS_BINARY_DIR}
 )
 
