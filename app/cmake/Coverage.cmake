@@ -13,18 +13,16 @@ function(AddCoverage target)
   find_program(GENHTML_PATH genhtml REQUIRED)
 
   # Add coverage flags
-
   if (COMPILER_CHOICE STREQUAL "GCC")
-    set(COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
+    set(COVERAGE_COMPILE_FLAGS "${COVERAGE_COMPILE_FLAGS} -fprofile-arcs -ftest-coverage")
     set(COVERAGE_LINK_FLAGS "-lgcov -fprofile-arcs -ftest-coverage")
-    target_compile_options(${target} PRIVATE -fprofile-arcs -ftest-coverage)
-    target_link_options(${target} PUBLIC -lgcov -fprofile-arcs -ftest-coverage)
   elseif(COMPILER_CHOICE STREQUAL "CLANG")
-      set(COVERAGE_COMPILE_FLAGS "--coverage")
-      set(COVERAGE_LINK_FLAGS "--coverage")
+    set(COVERAGE_COMPILE_FLAGS "--coverage")
+    set(COVERAGE_LINK_FLAGS "--coverage")
   endif()
-  # target_compile_options(${target} PRIVATE --coverage -fno-inline)
-  # target_link_options(${target} PUBLIC --coverage)
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILE_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${COVERAGE_LINK_FLAGS}")
 
   # This custom target now only initializes coverage counters and runs tests
   add_custom_target(coverage-${target}
@@ -34,6 +32,8 @@ function(AddCoverage target)
     WORKING_DIRECTORY ${UNIT_TESTS_BINARY_DIR}
     COMMENT "Running coverage for target: ${target}..."
   )
+
+  message(">>>>>>>>>>>CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 endfunction()
 
 
