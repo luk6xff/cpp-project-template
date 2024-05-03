@@ -123,30 +123,30 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Install cpplint
-RUN pip install cpplint
+# # Install cpplint
+# RUN pip install cpplint
 
-# Install Infer
-RUN VERSION=1.1.0; \
-curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
-| sudo tar -C /opt -xJ && \
-sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
+# # Install Infer
+# RUN VERSION=1.1.0; \
+# curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
+# | sudo tar -C /opt -xJ && \
+# sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
 
-# Install CodeChecker
-ENV CODE_CHECKER_PATH=/opt/CodeChecker
-ENV BUILD_LOGGER_64_BIT_ONLY=YES
-RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-RUN apt-get install -y nodejs
-RUN git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
-    cd ${CODE_CHECKER_PATH} && \
-    make package
-# Set environment variables to include CodeChecker in the PATH
-ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"
-ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
-# Set the report-converter permissions
-RUN chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter
-# Expose the default port used by CodeChecker server
-EXPOSE 8999
+# # Install CodeChecker
+# ENV CODE_CHECKER_PATH=/opt/CodeChecker
+# ENV BUILD_LOGGER_64_BIT_ONLY=YES
+# RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+# RUN apt-get install -y nodejs
+# RUN git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
+#     cd ${CODE_CHECKER_PATH} && \
+#     make package
+# # Set environment variables to include CodeChecker in the PATH
+# ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"
+# ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
+# # Set the report-converter permissions
+# RUN chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter
+# # Expose the default port used by CodeChecker server
+# EXPOSE 8999
 
 ################################################################################
 # Install additional packages required for your project

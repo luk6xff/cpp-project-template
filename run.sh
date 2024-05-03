@@ -85,6 +85,7 @@ APPS_DIR=${PROJECT_ROOT_PATH}/app
 HOME_DIR="/home/${USER}"
 # Docker file dir path
 DOCKERFILE_PATH="ci"
+DOCKERFILE_NAME="Dockerfile"
 
 # Commands utils
 ENTRY_CMD="/bin/bash"
@@ -190,7 +191,8 @@ _verify_arch() {
 		"-armv7" )
 			DOCKER_IMG_ARCH="linux/arm/v7";;
 		"-aarch64" )
-			DOCKER_IMG_ARCH="linux/arm64";;
+			DOCKER_IMG_ARCH="linux/arm64"
+			DOCKERFILE_NAME="Dockerfile_arm64";;
 		"-amd64" )
 			DOCKER_IMG_ARCH="linux/amd64";;
 		*)
@@ -288,13 +290,13 @@ _build_image() {
 								--build-arg USER_GID=$(id -g)		\
 								--build-arg ARCH=${ARCH}			\
 								--platform ${DOCKER_IMG_ARCH}		\
-								-f ${DOCKER_DIR}/Dockerfile			\
+								-f ${DOCKER_DIR}/${DOCKERFILE_NAME} \
 								${PROJECT_ROOT_PATH}
 			res=$?
 			if [[ $res == 0 ]]; then
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been built successfully! <<<"
 				echo "Saving docker image as: ${DOCKER_IMG}:${DOCKER_TAG}.tar.gz ..."
-				#docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}:${DOCKER_TAG}.tar.gz LU_TODO
+				docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}:${DOCKER_TAG}.tar.gz
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been saved successfully! <<<"
 			else
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} build failed! <<<"
