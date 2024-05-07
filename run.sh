@@ -100,11 +100,16 @@ echo ">>> Running script: ${SCRIPT_NAME} <<<"
 # Project specific build commands
 BUILD_SET_ENV_CMD="cd ${APPS_DIR}"
 
-APPS_RELEASE_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=OFF && cmake --build build --config Release && cmake --build build -t docs && cmake --build build -t codechecker && cmake --install build"
-APPS_DEBUG_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=ON && cmake --build build --config Debug && cmake --build build -t docs && cmake --build build -t codechecker && cmake --install build"
+APPS_RELEASE_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=OFF && cmake --build build --config Release && cmake --build build -t docs && cmake --install build"
+
+APPS_DEBUG_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=ON && cmake --build build --config Debug && cmake --install build"
 
 APPS_RUN_CMD="./build/bin/${PROJECT_NAME}"
+
 UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCOMPILER_CHOICE=GCC -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build && cmake --build build -t unit_tests"
+
+CODE_ANALYSIS_CMD="cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPROFILER_ENABLED=ON && cmake --build build --config Debug && cmake --build build -t docs && cmake --build build -t codechecker"
+
 CLEAN_CMD="rm -rf build"
 
 #########################################################################################
@@ -167,11 +172,12 @@ case "$OPT" in
 	"-U"|"--unit-tests-noclean" )
 		RUN_CMD="time (${UT_BUILD_CMD})"
 		CMD=_build_all;;
+	"-ca"|"--code-analysis" )
+		RUN_CMD="time (${CODE_ANALYSIS_CMD})"
+		CMD=_build_all;;
 	"-i"|"--image" )
 		RUN_CMD="time (${CLEAN_CMD}; exit 0)"
 		CMD="_build_image";;
-	"-d"|"--docker" )
-		CMD=_check_and_install_docker;;
 	"-b"|"--build" )
 		RUN_CMD="time (${APPS_RELEASE_BUILD_CMD}; exit 0)"
 		CMD=_build_all;;
