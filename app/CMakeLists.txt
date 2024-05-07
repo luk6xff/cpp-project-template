@@ -34,5 +34,5 @@ else()
     include(Doxygen)
     Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
     # CodeChecker
-    #include(CodeChecker) LU_TODO
+    include(CodeChecker)
 endif()

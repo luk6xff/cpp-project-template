@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include <cmath>
+#include <profiler.h>
 
 Game::Game(const std::filesystem::path &execDirPath,
            Resolution::Setting resolutionSetting,
@@ -19,11 +20,12 @@ Game::Game(const std::filesystem::path &execDirPath,
   loadHighScores();
   loadTextures();
   spawnPlayer();
+  spawnEnemies();
   initLifeIndicators();
 
   sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-  m_window.create(sf::VideoMode(m_screenWidth, m_screenHeight), "Cars Shooter",
-                  sf::Style::Close);
+  m_window.create(sf::VideoMode(m_screenWidth, m_screenHeight),
+                  "Volvo Cars Shooter", sf::Style::Close);
   m_window.setPosition(sf::Vector2i((desktop.width - m_screenWidth) / 2,
                                     (desktop.height - m_screenHeight) / 2));
   m_window.setFramerateLimit(60);
@@ -42,10 +44,18 @@ void Game::run() {
 
     while (timeSinceLastUpdate > m_timePerFrame) {
       timeSinceLastUpdate -= m_timePerFrame;
+      EASY_BLOCK("handleInput()");
       handleInput();
+      EASY_END_BLOCK;
+      EASY_BLOCK("updateMovement()");
       updateMovement();
+      EASY_END_BLOCK;
+      EASY_BLOCK("updateState()");
       updateState();
+      EASY_END_BLOCK;
+      EASY_BLOCK("destroyObjects()");
       destroyObjects();
+      EASY_END_BLOCK;
     }
 
     render();

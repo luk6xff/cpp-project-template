@@ -100,7 +100,9 @@ echo ">>> Running script: ${SCRIPT_NAME} <<<"
 # Project specific build commands
 BUILD_SET_ENV_CMD="cd ${APPS_DIR}"
 
-APPS_BUILD_CMD="cmake -S . -B build && cmake --build build --config Debug && cmake --build build -t docs" # cmake --build build -t codechecker && cmake --install build"
+APPS_RELEASE_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=OFF && cmake --build build --config Release && cmake --build build -t docs && cmake --build build -t codechecker && cmake --install build"
+APPS_DEBUG_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=ON && cmake --build build --config Debug && cmake --build build -t docs && cmake --build build -t codechecker && cmake --install build"
+
 APPS_RUN_CMD="./build/bin/${PROJECT_NAME}"
 UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCOMPILER_CHOICE=GCC -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build && cmake --build build -t unit_tests"
 CLEAN_CMD="rm -rf build"
@@ -148,10 +150,16 @@ case "$OPT" in
 		exec > /dev/null 2>&1
 		PRINT_RESULTS=false;;
 	"-a"|"--app" )
-		RUN_CMD="time (${CLEAN_CMD} && ${APPS_BUILD_CMD}; exit 0)"
+		RUN_CMD="time (${CLEAN_CMD} && ${APPS_RELEASE_BUILD_CMD}; exit 0)"
 		CMD=_build_all;;
 	"-A"|"--app-noclean" )
-		RUN_CMD="time (${APPS_BUILD_CMD})"
+		RUN_CMD="time (${APPS_RELEASE_BUILD_CMD})"
+		CMD=_build_all;;
+	"-ad"|"--app-debug" )
+		RUN_CMD="time (${CLEAN_CMD} && ${APPS_DEBUG_BUILD_CMD}; exit 0)"
+		CMD=_build_all;;
+	"-Ad"|"--app-debug-noclean" )
+		RUN_CMD="time (${APPS_DEBUG_BUILD_CMD})"
 		CMD=_build_all;;
 	"-u"|"--unit-tests" )
 		RUN_CMD="time (${CLEAN_CMD} && ${UT_BUILD_CMD})"
@@ -165,7 +173,7 @@ case "$OPT" in
 	"-d"|"--docker" )
 		CMD=_check_and_install_docker;;
 	"-b"|"--build" )
-		RUN_CMD="time (${APPS_BUILD_CMD}; exit 0)"
+		RUN_CMD="time (${APPS_RELEASE_BUILD_CMD}; exit 0)"
 		CMD=_build_all;;
 	"-c"|"--clean" )
 		RUN_CMD="time (${CLEAN_CMD})"

@@ -7,9 +7,16 @@
 #include <filesystem>
 #include <iostream>
 
+#include <profiler.h>
+
 namespace fs = std::filesystem;
 
 int main(int argc, char **argv) {
+
+  // Enable the profiler
+  EASY_PROFILER_ENABLE;
+  profiler::startListen();
+
   Resolution::Setting gameRes = Resolution::Setting::h600w800; // h864w1152;
   Difficulty::Level difficulty = Difficulty::Level::Normal;
 
