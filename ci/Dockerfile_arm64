@@ -2,7 +2,7 @@
 # Dockerfile for creating a cpp build environment
 ################################################################################
 
-FROM ubuntu:22.04
+FROM alpine:latest
 
 # Set docker image info
 LABEL maintainer="Lukasz Uszko <lukasz.uszko@gmail.com>"

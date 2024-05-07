@@ -30,6 +30,7 @@
 #%    -r, --run                  Run the application with detached docker mode
 #%    -ri, --run-interactive     Run the application with interactive docker mode
 #%    -s, --session              Run docker interactive session
+#%    -sc, --scan-image          Run scan docker image command
 #%    -f, --format               Run formatter on the source code
 #%
 #% ARGS
@@ -86,6 +87,8 @@ HOME_DIR="/home/${USER}"
 # Docker file dir path
 DOCKERFILE_PATH="ci"
 DOCKERFILE_NAME="Dockerfile"
+# Set default architecture
+ARCH="-amd64"
 
 # Commands utils
 ENTRY_CMD="/bin/bash"
@@ -120,11 +123,16 @@ DOCKER_DIR="${PROJECT_ROOT_PATH}/${DOCKERFILE_PATH}"
 [[ $# -eq 0 ]] && echo "No arguments supplied" && usage && exit 1;
 OPT="$1";
 
-if [[ -z "$2" ]];
+if [[ $# -eq 1 ]];
 then
-	ARCH=""
+	echo "No arch selected, defaulting to ${ARCH}";
 else
-	ARCH="$2";
+	if [[ -z "$2" ]];
+	then
+		echo "No arch selected, defaulting to ${ARCH}";
+	else
+		ARCH="$2";
+	fi
 fi
 
 case "$OPT" in
@@ -173,6 +181,8 @@ case "$OPT" in
 		RUN_CMD="${ENTRY_CMD}"
 		ARGS='-it --rm -a stdin -a stdout -a stderr'
 		CMD=_run;;
+	"-sc"|"--scan-image" )
+		CMD=_scan_image;;
 	"-f"|"--format" )
 		CMD=_format_code;;
 	*)
@@ -190,20 +200,19 @@ _verify_arch() {
 			DOCKER_IMG_ARCH="linux/arm/v6";;
 		"-armv7" )
 			DOCKER_IMG_ARCH="linux/arm/v7";;
-		"-aarch64" )
-			DOCKER_IMG_ARCH="linux/arm64"
-			DOCKERFILE_NAME="Dockerfile_arm64";;
+		"-arm64" )
+			DOCKER_IMG_ARCH="linux/arm64";;
 		"-amd64" )
 			DOCKER_IMG_ARCH="linux/amd64";;
 		*)
 			# The wrong platform argument.
-			echo 'Invalid platform ARCH applied, expected: "armv6", "armv7", "aarch64" or "amd64"' >&2
+			echo 'Invalid platform ARCH applied, expected: "armv6", "armv7", "arm64" or "amd64"' >&2
 			exit 1;;
 	esac
 
 	DOCKER_IMG="${PROJECT_NAME}${ARCH}"
-	echo ">>> Chosen docker image architecture: ${DOCKER_IMG_ARCH} "
-	echo ">>> Chosen docker image: ${DOCKER_IMG} "
+	echo ">>> Selected docker image architecture: ${DOCKER_IMG_ARCH} "
+	echo ">>> Selected docker image: ${DOCKER_IMG} "
 }
 
 
@@ -229,17 +238,11 @@ _check_and_install_docker() {
 	fi
 }
 
-_check_and_install_docker_multiarch() {
-	# Search for docker multiarch/qemu-user-static image
-	DOCKER_MULTIARCH_IMG="multiarch/qemu-user-static:latest"
-	image_query=$( docker images -q ${DOCKER_MULTIARCH_IMG} )
-	if [[ -n "${image_query}" ]]; then
-		echo "Docker image ["${DOCKER_MULTIARCH_IMG}"] exists, start running"
-	else
-		echo "Docker image ["${DOCKER_MULTIARCH_IMG}"] doesn't exist, start building/downloading"
-	fi
-	echo ">>> Running ${DOCKER_MULTIARCH_IMG} image... <<<"
-	docker run --rm --privileged ${DOCKER_MULTIARCH_IMG} --reset -p yes
+_scan_image() {
+	_verify_arch $ARCH
+	cd ${DOCKER_DIR}
+	docker run --rm -i hadolint/hadolint < Dockerfile
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${DOCKER_IMG}:${DOCKER_TAG}
 }
 
 _format_code() {
@@ -265,8 +268,6 @@ _pull_image(){
 _build_image() {
 	# Install docker
 	_check_and_install_docker
-	# Install multiarch
-	_check_and_install_docker_multiarch
 	# Set architecture
 	_verify_arch $ARCH
 	# Search for docker image
@@ -284,19 +285,27 @@ _build_image() {
 			echo "Pull failed, attempting to build image from Dockerfile"
 			echo "Start building: [${DOCKER_IMG}:${DOCKER_TAG}] ..."
 
-			docker buildx build	--tag ${DOCKER_IMG}:${DOCKER_TAG}	\
+			# Create the builder (if not already created)
+			docker buildx create --name my_builder --driver=docker-container --use
+			# Start the builder instance
+			docker buildx inspect --bootstrap
+			docker buildx build	--builder=my_builder				\
+								--tag ${DOCKER_IMG}:${DOCKER_TAG}	\
 								--build-arg USERNAME=${USER}		\
 								--build-arg USER_UID=$(id -u)		\
 								--build-arg USER_GID=$(id -g)		\
 								--build-arg ARCH=${ARCH}			\
 								--platform ${DOCKER_IMG_ARCH}		\
 								-f ${DOCKER_DIR}/${DOCKERFILE_NAME} \
+								--output="type=docker,push=false,dest=${DOCKER_DIR}/${DOCKER_IMG}.tar" \
 								${PROJECT_ROOT_PATH}
 			res=$?
 			if [[ $res == 0 ]]; then
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been built successfully! <<<"
+				echo "Loading docker image as: ${DOCKER_IMG}:${DOCKER_TAG} ..."
+				docker load --input ${DOCKER_DIR}/${DOCKER_IMG}.tar
 				echo "Saving docker image as: ${DOCKER_IMG}:${DOCKER_TAG}.tar.gz ..."
-				docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}:${DOCKER_TAG}.tar.gz
+				docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}-${DOCKER_TAG}.tar.gz
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been saved successfully! <<<"
 			else
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} build failed! <<<"
