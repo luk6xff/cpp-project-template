@@ -100,15 +100,17 @@ echo ">>> Running script: ${SCRIPT_NAME} <<<"
 # Project specific build commands
 BUILD_SET_ENV_CMD="cd ${APPS_DIR}"
 
-APPS_RELEASE_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=OFF && cmake --build build --config Release && cmake --build build -t docs && cmake --install build"
+APPS_RELEASE_BUILD_CMD="cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DPROFILER_ENABLED=OFF -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build && cmake --build build -t docs && cmake --install build"
 
-APPS_DEBUG_BUILD_CMD="cmake -S . -B build -DPROFILER_ENABLED=ON && cmake --build build --config Debug && cmake --install build"
+APPS_DEBUG_BUILD_CMD="cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DPROFILER_ENABLED=ON -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build && cmake --install build"
 
 APPS_RUN_CMD="./build/bin/${PROJECT_NAME}"
 
-UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCOMPILER_CHOICE=GCC -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build && cmake --build build -t unit_tests"
+APPS_GDB_RUN_CMD="gdbserver :2345 ./build/bin/${PROJECT_NAME}"
 
-CODE_ANALYSIS_CMD="cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPROFILER_ENABLED=ON && cmake --build build --config Debug && cmake --build build -t docs && cmake --build build -t codechecker"
+UT_BUILD_CMD="cmake -S . -B build -DUNIT_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCOMPILER_CHOICE=GCC -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain/Linux_x86_64.cmake && cmake --build build && cmake --build build -t unit_tests"
+
+CODE_ANALYSIS_CMD="cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPROFILER_ENABLED=ON && cmake --build build && cmake --build build -t docs && cmake --build build -t codechecker"
 
 CLEAN_CMD="rm -rf build"
 
@@ -190,6 +192,9 @@ case "$OPT" in
 		CMD=_run;;
 	"-ri"|"--run-interactive" )
 		RUN_CMD="time (${APPS_RUN_CMD})"
+		CMD=_run;;
+	"-rig"|"--run-interactive-gdb" )
+		RUN_CMD="time (${APPS_GDB_RUN_CMD})"
 		CMD=_run;;
 	"-s"|"--session" )
 		RUN_CMD="${ENTRY_CMD}"
@@ -318,8 +323,8 @@ _build_image() {
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been built successfully! <<<"
 				echo "Loading docker image as: ${DOCKER_IMG}:${DOCKER_TAG} ..."
 				docker load --input ${DOCKER_DIR}/${DOCKER_IMG}.tar
-				echo "Saving docker image as: ${DOCKER_IMG}:${DOCKER_TAG}.tar.gz ..."
-				docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}-${DOCKER_TAG}.tar.gz
+				# echo "Saving docker image as: ${DOCKER_IMG}:${DOCKER_TAG}.tar.gz ..."
+				# docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}-${DOCKER_TAG}.tar.gz
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been saved successfully! <<<"
 			else
 				echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} build failed! <<<"
@@ -358,7 +363,9 @@ _run() {
 	docker run ${ARGS} \
 		--name "${DOCKER_IMG}" \
 		--privileged \
+		--cap-add=SYS_PTRACE \
 		--security-opt apparmor=unconfined \
+		--security-opt seccomp=unconfined \
 		--group-add=dialout \
 		--net=host \
 		--log-opt max-size=10m \

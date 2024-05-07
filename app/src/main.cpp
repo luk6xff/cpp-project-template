@@ -11,7 +11,7 @@
 
 namespace fs = std::filesystem;
 
-int main(int argc, char **argv) {
+int main() {
 
   // Enable the profiler
   EASY_PROFILER_ENABLE;

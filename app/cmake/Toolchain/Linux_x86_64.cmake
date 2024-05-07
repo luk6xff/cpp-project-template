@@ -41,6 +41,7 @@ endif()
 
 # Debug and Release flags
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message(STATUS "Building in Debug mode...")
   set(COMPILER_SPECIFIC_FLAGS "${COMPILER_SPECIFIC_FLAGS} -O0 -g")
   # Coverage flags LU_TODO: move it to Coverage.cmake
   if (COMPILER_CHOICE STREQUAL "GCC")

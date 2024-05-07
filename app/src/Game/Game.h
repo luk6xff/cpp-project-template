@@ -109,13 +109,6 @@ private:
                            ///< enemies on screen.
   int m_score;             ///< Current score of the player.
 
-  // Control flags
-  bool m_shoot;
-  bool m_moveLeft;
-  bool m_moveRight;
-  bool m_moveUp;
-  bool m_moveDown;
-
   // Gameplay constants
   const int m_maxPlayerHealth;
   const float m_playerSpeed;
@@ -125,6 +118,13 @@ private:
   const float m_enemyBulletSpeed;
   const float m_backgroundSpeed;
   float m_enemyChanceNotToShoot;
+
+  // Control flags
+  bool m_shoot;
+  bool m_moveUp;
+  bool m_moveDown;
+  bool m_moveLeft;
+  bool m_moveRight;
 
   // Set resolution based on settings
   void setResolution(Resolution::Setting resolution);

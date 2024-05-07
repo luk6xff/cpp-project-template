@@ -54,12 +54,8 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     lld \
     lldb \
     # C/C++ libraries
-    libboost-all-dev \
     libgtest-dev \
     libgmock-dev \
-    libgoogle-glog-dev \
-    libgoogle-perftools-dev \
-    libbenchmark-dev \
     # Libraries
     gnupg \
     unzip \
@@ -68,14 +64,11 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     software-properties-common \
     # Python
     python3 \
-    python3-dev \
     python3-pip \
     python3-venv \
-    python3-setuptools \
     # Networking
     curl \
     wget \
-    socat \
     # Code analysis
     cppcheck \
     iwyu \
@@ -83,6 +76,7 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     clang-format \
     # Debugging/tracing
     gdb \
+    gdbserver \
     valgrind \
     ltrace \
     strace \
@@ -96,7 +90,6 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     doxygen-doxyparse\
     # Version control
     git \
-    git-flow \
     # Other tools
     lsb-release \
     jq \
@@ -104,6 +97,9 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     ###
     # clean up
     && rm -rf /var/lib/apt/lists/*
+
+# Install GEF
+RUN bash -c "$(wget https://gef.blah.cat/sh -O -)"
 
 # Setup python virtual environment
 ENV VIRTUAL_ENV=/opt/venv

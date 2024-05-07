@@ -7,13 +7,13 @@ Game::Game(const std::filesystem::path &execDirPath,
            Resolution::Setting resolutionSetting,
            Difficulty::Level gameDifficulty)
     : m_execDirPath(execDirPath), m_timePerFrame(sf::seconds(1.f / 60.f)),
-      m_delta(m_timePerFrame.asSeconds()), m_lifeScale(0.07f),
-      m_maxPlayerHealth(5), m_playerSpeed(420.f), m_enemyCarSpeed(210.f),
-      m_enemyTruckSpeed(170.f), m_playerBulletSpeed(600.f),
-      m_enemyBulletSpeed(300.f), m_backgroundSpeed(1200.f),
-      m_enemyChanceNotToShoot(6.5f), m_score(0), m_highScores({0, 0, 0}),
-      m_moveDown(false), m_moveLeft(false), m_moveRight(false),
-      m_moveUp(false) {
+      m_delta(m_timePerFrame.asSeconds()), m_highScores({0, 0, 0}),
+      m_lifeScale(0.07f), m_score(0), m_maxPlayerHealth(5),
+      m_playerSpeed(420.f), m_enemyCarSpeed(210.f), m_enemyTruckSpeed(170.f),
+      m_playerBulletSpeed(600.f), m_enemyBulletSpeed(300.f),
+      m_backgroundSpeed(1200.f), m_enemyChanceNotToShoot(6.5f), m_shoot(false),
+      m_moveUp(false), m_moveDown(false), m_moveLeft(false),
+      m_moveRight(false) {
   setResolution(resolutionSetting);
   setDifficulty(gameDifficulty);
   initializeStatusTextView();
@@ -44,16 +44,16 @@ void Game::run() {
 
     while (timeSinceLastUpdate > m_timePerFrame) {
       timeSinceLastUpdate -= m_timePerFrame;
-      EASY_BLOCK("handleInput()");
+      EASY_BLOCK("handleInput()", profiler::colors::Red);
       handleInput();
       EASY_END_BLOCK;
-      EASY_BLOCK("updateMovement()");
+      EASY_BLOCK("updateMovement()", profiler::colors::Blue);
       updateMovement();
       EASY_END_BLOCK;
-      EASY_BLOCK("updateState()");
+      EASY_BLOCK("updateState()", profiler::colors::Green);
       updateState();
       EASY_END_BLOCK;
-      EASY_BLOCK("destroyObjects()");
+      EASY_BLOCK("destroyObjects()", profiler::colors::Orange);
       destroyObjects();
       EASY_END_BLOCK;
     }
@@ -164,6 +164,8 @@ void Game::handleInput() {
       case sf::Keyboard::Right:
         m_moveRight = true;
         break;
+      default:
+        break;
       }
     } else if (event.type == sf::Event::KeyReleased) {
       switch (event.key.code) {
@@ -185,6 +187,8 @@ void Game::handleInput() {
       case sf::Keyboard::D:
       case sf::Keyboard::Right:
         m_moveRight = false;
+        break;
+      default:
         break;
       }
     }
@@ -441,7 +445,6 @@ void Game::restart() {
   m_enemyBullets.clear();
   initLifeIndicators();
 
-  sf::FloatRect playerRect = m_player->getRect();
   if (m_player->isInvisible())
     m_player->toggleInvisibility();
   m_player->setHealth(m_maxPlayerHealth);
