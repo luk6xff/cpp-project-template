@@ -339,6 +339,8 @@ function run_container_prod() {
 		--log-opt max-size=10m \
 		--log-opt max-file=2 \
 		--restart unless-stopped \
+		-e LANG=C.UTF-8 \
+		-e LC_ALL=C.UTF-8 \
 		-e DISPLAY=$DISPLAY \
 		-v /etc/localtime:/etc/localtime:ro \
 		-v /tmp/:/tmp \
