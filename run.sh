@@ -250,7 +250,6 @@ function build_all_dev() {
 	build_image_dev
 	echo "Building the apps..."
 	run_container_dev
-	exit 0
 }
 
 function run_container_dev() {
@@ -270,6 +269,8 @@ function run_container_dev() {
 		--net=host \
 		--log-opt max-size=10m \
 		--log-opt max-file=2 \
+		-e LANG=C.UTF-8 \
+		-e LC_ALL=C.UTF-8 \
 		-e APPS_REVISION=$(git describe --always --long --abbrev=16) \
 		-e APPS_IMAGE_VERSION=${DOCKER_IMG}:${DOCKER_TAG} \
 		-e DISPLAY=$DISPLAY \
@@ -341,6 +342,7 @@ function run_container_prod() {
 		-e DISPLAY=$DISPLAY \
 		-v /etc/localtime:/etc/localtime:ro \
 		-v /tmp/:/tmp \
+		-v $HOME/.Xauthority:/root/.Xauthority:rw \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		${DOCKER_IMG}:${DOCKER_TAG}
 }
