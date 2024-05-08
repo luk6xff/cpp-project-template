@@ -157,6 +157,10 @@ WORKDIR $HOME
 
 
 ################################################################################
-FROM alpine:3.19 as project-runtime
-COPY --from=project-build $HOME/Projects/cpp-project-template/app/build/bin /app
+#FROM alpine:3.19 as project-runtime
+#FROM debian:bookworm-slim as project-runtime
+FROM project-build as project-runtime
+COPY ../app/build/bin /app
+CMD ["ls", "-la", "/app"]
 CMD ["/app/my_project"]
+

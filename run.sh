@@ -182,9 +182,6 @@ case "$OPT" in
 	"-i"|"--image" )
 		RUN_CMD="time (${CLEAN_CMD}; exit 0)"
 		CMD="_build_image";;
-	"-b"|"--build" )
-		RUN_CMD="time (${BUILD_PRODUCTION_CMD}; exit 0)"
-		CMD=_build_production;;
 	"-c"|"--clean" )
 		RUN_CMD="time (${CLEAN_CMD})"
 		CMD=_run;;
@@ -202,6 +199,11 @@ case "$OPT" in
 		RUN_CMD="${ENTRY_CMD}"
 		ARGS='-it --rm -a stdin -a stdout -a stderr'
 		CMD=_run;;
+	"-b"|"--build" )
+		RUN_CMD="time (${BUILD_PRODUCTION_CMD}; exit 0)"
+		CMD=_build_production;;
+	"-p"|"--run-prod" )
+		CMD=_run_production;;
 	"-sc"|"--scan-image" )
 		CMD=_scan_image;;
 	"-f"|"--format" )
@@ -424,6 +426,33 @@ _run() {
 		--volume ${APPS_DIR}:${APPS_DIR} \
 		${DOCKER_IMG}:${DOCKER_TAG} ${ENTRY_CMD} -c "${BUILD_SET_ENV_CMD} && ${RUN_CMD}"
 	exit 0
+}
+
+_run_production() {
+	# Check architecture
+	_verify_arch ${ARCH}
+	DOCKER_IMG="${DOCKER_IMG}-production"
+	# Run docker container
+	echo >&2 "Running ${DOCKER_IMG} docker container..."
+
+	# Remove dangling containers first if any
+	docker container prune -f
+
+	docker run ${ARGS} \
+		--name "${DOCKER_IMG}" \
+		--privileged \
+		--cap-add=SYS_PTRACE \
+		--security-opt apparmor=unconfined \
+		--security-opt seccomp=unconfined \
+		--group-add=dialout \
+		--net=host \
+		--log-opt max-size=10m \
+		--log-opt max-file=2 \
+		-e DISPLAY=$DISPLAY \
+		-v /etc/localtime:/etc/localtime:ro \
+		-v /tmp/:/tmp \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		${DOCKER_IMG}:${DOCKER_TAG}
 }
 
 ${CMD}
