@@ -3,11 +3,11 @@
 ################################################################################
 
 #FROM ubuntu:22.04
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim as project-build
 
 # Set docker image info
 LABEL maintainer="Lukasz Uszko <lukasz.uszko@gmail.com>"
-LABEL Description="luk6xff's cpp project template"
+LABEL description="luk6xff's cpp project template"
 
 # Set non-interactive installation mode
 ENV DEBIAN_FRONTEND=noninteractive
@@ -23,7 +23,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && useradd -s /bin/bash -c ${USERNAME} -d ${HOME} --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} \
     # Add sudo support
     && apt-get update \
-    && apt-get install -y sudo \
+    && apt-get install --no-install-recommends -qy sudo \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     # Cleanup
@@ -68,7 +68,6 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     python3-venv \
     # Networking
     curl \
-    wget \
     # Code analysis
     cppcheck \
     iwyu \
@@ -99,7 +98,7 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GEF
-RUN bash -c "$(wget https://gef.blah.cat/sh -O -)"
+RUN bash -c "$(curl -fsSL https://gef.blah.cat/sh)"
 
 # Setup python virtual environment
 ENV VIRTUAL_ENV=/opt/venv
@@ -107,7 +106,7 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install cpplint
-RUN pip install cpplint
+RUN pip install --no-cache-dir cpplint
 
 # Install Infer
 RUN VERSION=1.1.0; \
@@ -119,7 +118,7 @@ sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
 ENV CODE_CHECKER_PATH=/opt/CodeChecker
 ENV BUILD_LOGGER_64_BIT_ONLY=YES
 RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-RUN apt-get install -y nodejs
+RUN apt-get install --no-install-recommends -qy nodejs
 RUN git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
     cd ${CODE_CHECKER_PATH} && \
     make package
@@ -135,7 +134,7 @@ EXPOSE 8999
 # Install additional packages required for your project
 ################################################################################
 RUN apt-get update \
-    && apt install --no-install-recommends -qy \
+    && apt-get install --no-install-recommends -qy \
     libxrandr-dev \
     libxcursor-dev \
     libudev-dev \
@@ -155,3 +154,9 @@ RUN rm -rf /var/lib/apt/lists/*
 ################################################################################
 USER ${USERNAME}
 WORKDIR $HOME
+
+
+################################################################################
+FROM alpine:3.19 as project-runtime
+COPY --from=project-build $HOME/Projects/cpp-project-template/app/build/bin /app
+CMD ["/app/my_project"]

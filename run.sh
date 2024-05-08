@@ -24,7 +24,7 @@
 #%    -QT, --qualification-tests-noclean
 #%    -i, --image                Build docker image
 #%    -d, --docker               Checks and install docker on the machine if needed
-#%    -b, --build                Run full build (docker image and the app) command, creates ${PROJECT_NAME}_img ready for use
+#%    -b, --build                Run full production build, creates a production image
 #%    -B, --build-noclean
 #%    -c, --clean                Run full clean command
 #%    -r, --run                  Run the application with detached docker mode
@@ -114,6 +114,8 @@ CODE_ANALYSIS_CMD="cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_C
 
 CLEAN_CMD="rm -rf build"
 
+BUILD_PRODUCTION_CMD="${CLEAN_CMD} && ${APPS_DEBUG_BUILD_CMD}"
+
 #########################################################################################
 ###  NOTE!!! Modify DOCKER_TAG variable only when a new image version is gonna be crated
 #########################################################################################
@@ -181,8 +183,8 @@ case "$OPT" in
 		RUN_CMD="time (${CLEAN_CMD}; exit 0)"
 		CMD="_build_image";;
 	"-b"|"--build" )
-		RUN_CMD="time (${APPS_RELEASE_BUILD_CMD}; exit 0)"
-		CMD=_build_all;;
+		RUN_CMD="time (${BUILD_PRODUCTION_CMD}; exit 0)"
+		CMD=_build_production;;
 	"-c"|"--clean" )
 		RUN_CMD="time (${CLEAN_CMD})"
 		CMD=_run;;
@@ -314,6 +316,7 @@ _build_image() {
 								--build-arg USER_UID=$(id -u)		\
 								--build-arg USER_GID=$(id -g)		\
 								--build-arg ARCH=${ARCH}			\
+								--target project-build				\
 								--platform ${DOCKER_IMG_ARCH}		\
 								-f ${DOCKER_DIR}/${DOCKERFILE_NAME} \
 								--output="type=docker,push=false,dest=${DOCKER_DIR}/${DOCKER_IMG}.tar" \
@@ -349,6 +352,47 @@ _build_apps() {
 	# Run apps build
 	echo "Building the app..."
 	cd ${PROJECT_ROOT_PATH}
+}
+
+_build_production() {
+	# Check architecture
+	_verify_arch $ARCH
+	# Run production build
+	echo "Building the production image..."
+	#_build_apps
+	#_run  LU_TODO
+	#_build_image
+	DOCKER_IMG="${DOCKER_IMG}-production"
+	echo "Start building: [${DOCKER_IMG}:${DOCKER_TAG}] ..."
+
+	# Create the builder (if not already created)
+	#docker buildx create --name my_builder --driver=docker-container --use
+	# Start the builder instance
+	#docker buildx inspect --bootstrap
+	docker buildx build	--builder=my_builder				\
+						--tag ${DOCKER_IMG}:${DOCKER_TAG}	\
+						--build-arg USERNAME=${USER}		\
+						--build-arg USER_UID=$(id -u)		\
+						--build-arg USER_GID=$(id -g)		\
+						--build-arg ARCH=${ARCH}			\
+						--target project-runtime			\
+						--platform ${DOCKER_IMG_ARCH}		\
+						-f ${DOCKER_DIR}/${DOCKERFILE_NAME} \
+						--output="type=docker,push=false,dest=${DOCKER_DIR}/${DOCKER_IMG}.tar" \
+						${PROJECT_ROOT_PATH}
+	res=$?
+	if [[ $res == 0 ]]; then
+		echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been built successfully! <<<"
+		echo "Loading docker image as: ${DOCKER_IMG}:${DOCKER_TAG} ..."
+		docker load --input ${DOCKER_DIR}/${DOCKER_IMG}.tar
+		# echo "Saving docker image as: ${DOCKER_IMG}:${DOCKER_TAG}.tar.gz ..."
+		# docker save ${DOCKER_IMG}:${DOCKER_TAG} | gzip > ${DOCKER_DIR}/${DOCKER_IMG}-${DOCKER_TAG}.tar.gz
+		echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} has been saved successfully! <<<"
+	else
+		echo ">>> Docker image: ${DOCKER_IMG}:${DOCKER_TAG} build failed! <<<"
+		exit 1
+	fi
+	exit 0
 }
 
 _run() {
