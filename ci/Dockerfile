@@ -8,7 +8,7 @@
 ## PROJECT BUILD STAGE
 ################################################################################
 ################################################################################
-#FROM ubuntu:22.04
+#FROM ubuntu:22.04 as project-build
 FROM debian:bookworm-slim as project-build
 
 # Set docker image info
@@ -112,29 +112,35 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Install pythom packages
+RUN pip install --no-cache-dir cpplint
+
+# Install Infer
+RUN VERSION=1.1.0; \
+curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
+| sudo tar -C /opt -xJ && \
+sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
+
+# Install CodeChecker
+ENV CODE_CHECKER_PATH=/opt/CodeChecker
+ENV BUILD_LOGGER_64_BIT_ONLY=YES
+# Set environment variables to include CodeChecker in the PATH
+ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"
+ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
+# Expose the default port used by CodeChecker server
+EXPOSE 8999
+
 RUN if [ "$ARCH" = "-amd64" ]; then \
-    # Install cpplint
-    RUN pip install --no-cache-dir cpplint; \
-    # Install Infer
-    RUN VERSION=1.1.0; \
-    curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
-    | sudo tar -C /opt -xJ && \
-    sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer \
-    # Install CodeChecker
-    ENV CODE_CHECKER_PATH=/opt/CodeChecker; \
-    ENV BUILD_LOGGER_64_BIT_ONLY=YES; \
-    curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -; \
-    apt-get install --no-install-recommends -qy nodejs; \
-    git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
-    cd ${CODE_CHECKER_PATH} && \
-    make package; \
-    ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"; \
-    ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"; \
-    chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter; \
-    EXPOSE 8999; \
-    else \
-        echo "Skipping x86_64 specific commands"; \
-    fi
+        curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+        && apt-get install -y nodejs \
+        && git clone --depth 1 https://github.com/Ericsson/CodeChecker.git ${CODE_CHECKER_PATH} \
+        && cd ${CODE_CHECKER_PATH} \
+        && make package \
+        && chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter \
+    ; fi
+
+
+
 ################################################################################
 # Install additional packages required for your project
 ################################################################################
