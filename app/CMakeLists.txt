@@ -12,7 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set the cmak module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# Generate compile commands json file needed for CodeChecker and static analyzers
+# Generate compile commands json file needed for static analyzers
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add test subdirectory
@@ -33,6 +33,10 @@ else()
     # Generate doxygen documentation
     include(Doxygen)
     Doxygen(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src)
-    # CodeChecker
-    include(CodeChecker)
+
+    if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+        # CodeChecker
+        include(CodeChecker)
+    endif()
+
 endif()

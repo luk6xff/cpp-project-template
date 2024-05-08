@@ -19,9 +19,7 @@ Game::Game(const std::filesystem::path &execDirPath,
   initializeStatusTextView();
   loadHighScores();
   loadTextures();
-  spawnPlayer();
-  spawnEnemies();
-  initLifeIndicators();
+  restart();
 
   sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
   m_window.create(sf::VideoMode(m_screenWidth, m_screenHeight),
@@ -250,7 +248,9 @@ void Game::updateState() {
       m_player->damage(1);
       m_player->flash(sf::Color::Red, 80);
       bulletIt = m_enemyBullets.erase(bulletIt);
-      m_lives.pop_back();
+      if (m_lives.size() > 0) {
+        m_lives.pop_back();
+      }
       bulletIt--;
     }
   }
@@ -304,6 +304,10 @@ void Game::destroyObjects() {
     m_explosions.back().play();
 
     // Update score text and highscore
+    if (m_score > m_highScores[static_cast<int>(m_difficulty)]) {
+      m_highScores[static_cast<int>(m_difficulty)] = m_score;
+      saveNewHighscore();
+    }
     updateStatusTextView();
   }
 }
@@ -443,12 +447,10 @@ void Game::restart() {
   m_enemies.clear();
   m_playerBullets.clear();
   m_enemyBullets.clear();
-  initLifeIndicators();
 
-  if (m_player->isInvisible())
-    m_player->toggleInvisibility();
-  m_player->setHealth(m_maxPlayerHealth);
-  m_player->setPosition((m_screenWidth / 2), 0);
+  spawnPlayer();
+  spawnEnemies();
+  initLifeIndicators();
 
   m_playTimeClock.restart();
 }
@@ -492,6 +494,7 @@ void Game::spawnPlayer() {
 
 // Spawn enemies on the screen
 void Game::spawnEnemies() {
+
   // Spawn as many enemies as enemyCount
   for (int i = 0; i < m_enemyCount; i++) {
     int randNum = rand() % 100;

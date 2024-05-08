@@ -2,6 +2,12 @@
 # Dockerfile for creating a cpp build environment
 ################################################################################
 
+
+################################################################################
+################################################################################
+## PROJECT BUILD STAGE
+################################################################################
+################################################################################
 #FROM ubuntu:22.04
 FROM debian:bookworm-slim as project-build
 
@@ -16,6 +22,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG USERNAME
 ARG USER_UID
 ARG USER_GID
+ARG ARCH
 ENV HOME /home/${USERNAME}
 
 # Create a non-root user to use
@@ -32,7 +39,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
-# Install LUK6xFF mandatory packages
+# Install luk6xff mandatory packages
 ################################################################################
 RUN apt-get update && apt-get install --no-install-recommends -qy \
     # Build tools
@@ -77,7 +84,6 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     gdb \
     gdbserver \
     valgrind \
-    ltrace \
     strace \
     # Code coverage
     lcov \
@@ -93,8 +99,9 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     lsb-release \
     jq \
     gawk \
-    ###
-    # clean up
+    # Cleanup
+    && apt-get autoremove -y \
+    && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GEF
@@ -105,31 +112,29 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Install cpplint
-RUN pip install --no-cache-dir cpplint
-
-# Install Infer
-RUN VERSION=1.1.0; \
-curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
-| sudo tar -C /opt -xJ && \
-sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
-
-# Install CodeChecker
-ENV CODE_CHECKER_PATH=/opt/CodeChecker
-ENV BUILD_LOGGER_64_BIT_ONLY=YES
-RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-RUN apt-get install --no-install-recommends -qy nodejs
-RUN git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
+RUN if [ "$ARCH" = "-amd64" ]; then \
+    # Install cpplint
+    RUN pip install --no-cache-dir cpplint; \
+    # Install Infer
+    RUN VERSION=1.1.0; \
+    curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
+    | sudo tar -C /opt -xJ && \
+    sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer \
+    # Install CodeChecker
+    ENV CODE_CHECKER_PATH=/opt/CodeChecker; \
+    ENV BUILD_LOGGER_64_BIT_ONLY=YES; \
+    curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -; \
+    apt-get install --no-install-recommends -qy nodejs; \
+    git clone https://github.com/Ericsson/CodeChecker.git --depth 1 ${CODE_CHECKER_PATH} && \
     cd ${CODE_CHECKER_PATH} && \
-    make package
-# Set environment variables to include CodeChecker in the PATH
-ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"
-ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
-# Set the report-converter permissions
-RUN chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter
-# Expose the default port used by CodeChecker server
-EXPOSE 8999
-
+    make package; \
+    ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"; \
+    ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"; \
+    chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter; \
+    EXPOSE 8999; \
+    else \
+        echo "Skipping x86_64 specific commands"; \
+    fi
 ################################################################################
 # Install additional packages required for your project
 ################################################################################
@@ -143,11 +148,11 @@ RUN apt-get update \
     libflac-dev \
     libvorbis-dev \
     libgl1-mesa-dev \
-    libegl1-mesa-dev
-
-# clean up
-RUN rm -rf /var/lib/apt/lists/*
-
+    libegl1-mesa-dev \
+    # Cleanup
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 # Setup
@@ -156,11 +161,30 @@ USER ${USERNAME}
 WORKDIR $HOME
 
 
+
 ################################################################################
-#FROM alpine:3.19 as project-runtime
-#FROM debian:bookworm-slim as project-runtime
-FROM project-build as project-runtime
+################################################################################
+## PROJECT RUNTIME STAGE
+################################################################################
+################################################################################
+#FROM project-build as project-runtime
+FROM debian:bookworm-slim as project-runtime
+RUN apt-get update \
+    && apt-get install --no-install-recommends -qy \
+    libxrandr2 \
+    libxcursor1 \
+    libudev1 \
+    libfreetype6 \
+    libopenal1 \
+    libflac12 \
+    libvorbisfile3 \
+    libgl1 \
+    libegl1 \
+    gdbserver \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 COPY ../app/build/bin /app
-CMD ["ls", "-la", "/app"]
-CMD ["/app/my_project"]
+#CMD ["/app/my_project"]
+CMD ["gdbserver", ":2345", "/app/my_project"]
 
