@@ -55,9 +55,10 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     gcc \
     g++ \
     # LLVM Toolchain
-    clang \
+    clang-15 \
     clang-tools \
-    clangd \
+    clangd-15 \
+    libclang-15-dev \
     lld \
     lldb \
     # C/C++ libraries

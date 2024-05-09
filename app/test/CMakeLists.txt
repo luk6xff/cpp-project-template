@@ -13,3 +13,7 @@ if (SYSTEM_TESTS)
   add_subdirectory(system)
 endif()
 
+if (FUZZING_TESTS)
+  add_subdirectory(fuzzing)
+endif()
+

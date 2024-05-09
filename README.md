@@ -88,6 +88,11 @@ firefox ~/Projects/cpp-project-template/app/build/test/unit/report/coverage-repo
 cmake --build build -t valgrind-ConfigReaderTest
 ```
 
+### Fuzzing
+```sh
+./run.sh -f -amd64
+```
+
 ### Memcheck (Valgrind)
 ```sh
 # Build the app

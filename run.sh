@@ -18,6 +18,7 @@
 #%    -A, --app-noclean
 #%    -u, --unit-tests             [component1_name [component2_name ...]]    Build and run unit tests for Application with coverage (or for specific sw component(s) without coverage)
 #%    -U, --unit-tests-noclean
+#%    -f, --fuzzing              Run fuzzing
 #%    -it, --integration-tests            Build and run integration tests for Application
 #%    -IT, --integration-tests-noclean
 #%    -qt, --qualification-tests          Build and run qualification tests for Application
@@ -30,7 +31,6 @@
 #%    -pb, --prod-build          Run full production build, creates a production image
 #%    -pr, --prod-run         	 Run production build run command
 #%    -sc, --scan-image          Run scan docker image command
-#%    -f, --format               Run formatter on the source code
 #%
 #% CONTAINER_ARGS
 #%    None
@@ -367,7 +367,8 @@ function cmake_build() {
 	local toolchain_file=${4:-"cmake/Toolchain/Linux_x86_64.cmake"} # Default toolchain if not specified
 	local unit_tests=${5:-"OFF"} # Default to no unit tests unless specified
 	local perform_code_analysis=${6:-"OFF"} # Default to no code analysis unless specified
-	local compiler=${7:-"GCC"} # Default to no code analysis unless specified
+	local compiler=${7:-"GCC"} # Default to GCC
+	local fuzzing=${8:-"OFF"} # Default to OFF
 
 	echo "Starting CMake build process..."
 	echo "Build type: ${build_type}, Profiler Enabled: ${profiler_enabled}, Toolchain: ${toolchain_file}, Unit Tests: ${unit_tests}, Code Analysis: ${perform_code_analysis}, Compiler Type: ${compiler}"
@@ -385,11 +386,18 @@ function cmake_build() {
 		-DUNIT_TESTS=${unit_tests} \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=${perform_code_analysis} \
 		-DCOMPILER_CHOICE=${compiler} \
+		-DFUZZING_TESTS=${fuzzing} \
 		&& cmake --build build --config ${build_type}"
 
 	# Build and run unit tests if requested
 	if [ "${unit_tests}" = "ON" ]; then
 		RUN_CMD="${RUN_CMD} && cmake --build build -t unit_tests"
+		echo "Running unit tests..."
+	fi
+
+	# Build and run unit tests if requested
+	if [ "${fuzzing}" = "ON" ]; then
+		RUN_CMD="${RUN_CMD} && cmake --build build -t fuzzing_tests"
 		echo "Running unit tests..."
 	fi
 
@@ -483,6 +491,9 @@ case "$OPT" in
 	"-U"|"--unit-tests-noclean" )
 		cmake_build "Debug" "ON" "false" "${TOOLCHAIN_FILE}" "ON" "OFF";
 		CMD=build_all_dev;;
+	"-f"|"--fuzz" )
+		cmake_build "Debug" "OFF" "true" "${TOOLCHAIN_FILE}" "OFF" "OFF" "CLANG" "ON";
+		CMD=build_all_dev;;
 	"-ca"|"--code-analysis" )
 		cmake_build "Debug" "ON" "true" "${TOOLCHAIN_FILE}" "OFF" "ON";
 		CMD=build_all_dev;;
@@ -508,8 +519,6 @@ case "$OPT" in
 		CMD=run_container_prod;;
 	"-sc"|"--scan-image" )
 		CMD=scan_image;;
-	"-f"|"--format" )
-		CMD=format_code;;
 	*)
 		# The wrong command argument.
 		echo "Invalid option: $OPT";

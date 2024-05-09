@@ -78,11 +78,7 @@ public:
      */
     void loadSettingsFromFile(Resolution::Setting& resolutionSetting, Difficulty::Level& difficultyLevel);
 
-private:
-    std::string m_configurationFilePath;           ///< Path to the configuration file.
-    const IFileStreamFactory& m_fileStreamFactory; ///< File stream factory used for creating streams.
-
-    /**
+    /** LU_TODO: Move it to private section
      * @brief Parses the entire configuration file.
      * @param inputFile Input stream of the configuration file.
      * @param resolutionSetting Reference to store the loaded resolution setting.
@@ -92,6 +88,10 @@ private:
         std::istream& inputFile,
         Resolution::Setting& resolutionSetting,
         Difficulty::Level& difficultyLevel);
+
+private:
+    std::string m_configurationFilePath;           ///< Path to the configuration file.
+    const IFileStreamFactory& m_fileStreamFactory; ///< File stream factory used for creating streams.
 
     /**
      * @brief Processes each line of the configuration file.
@@ -139,8 +139,6 @@ private:
     /**
      * @brief Creates a default configuration file if the main configuration file
      * is not accessible.
-     * @param fileStreamFactory File stream factory to use for creating the output
-     * stream.
      */
     void createDefaultConfigurationFile();
 };
