@@ -49,7 +49,4 @@ misc.sh
 *.bash_history
 
 # Temporary files
-build-scripts
-run_qnx.sh
-corpoApp
-app2
+build*

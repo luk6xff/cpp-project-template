@@ -62,6 +62,12 @@ CTRL+C
 ./run.sh -s -arm64
 ```
 
+### Documentation
+```sh
+./run.sh -ca -amd64
+firefox ~/Projects/cpp-project-template/app/build/docs/index.html
+```
+
 ### Static Code analysis
 ```sh
 ./run.sh -ca -amd64

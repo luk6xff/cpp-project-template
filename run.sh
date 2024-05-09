@@ -269,6 +269,7 @@ function run_container_dev() {
 		--net=host \
 		--log-opt max-size=10m \
 		--log-opt max-file=2 \
+		--platform ${DOCKER_IMG_ARCH}	\
 		-e LANG=C.UTF-8 \
 		-e LC_ALL=C.UTF-8 \
 		-e APPS_REVISION=$(git describe --always --long --abbrev=16) \
@@ -417,11 +418,6 @@ function run_app() {
 	local command_type=$1 # 'run', 'gdb'
 	local gdb_port=${2:-"2345"} # Optional GDB port for debugging
 
-	if [[ "${clean_build}" == "true" ]]; then
-		echo "Cleaning build directory..."
-		rm -rf build
-	fi
-
 	case "${command_type}" in
 		run)
 			echo "Running application..."
@@ -495,7 +491,7 @@ case "$OPT" in
 		cmake_build "Debug" "OFF" "true" "${TOOLCHAIN_FILE}" "OFF" "OFF" "CLANG" "ON";
 		CMD=build_all_dev;;
 	"-ca"|"--code-analysis" )
-		cmake_build "Debug" "ON" "true" "${TOOLCHAIN_FILE}" "OFF" "ON";
+		cmake_build "Debug" "ON" "false" "${TOOLCHAIN_FILE}" "OFF" "ON";
 		CMD=build_all_dev;;
 	"-i"|"--image" )
 		CMD="build_image_dev";;
