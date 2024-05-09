@@ -19,7 +19,8 @@ add_custom_command(
     OUTPUT ${CLANG_TIDY_OUTPUT_FILE}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CLANG_TIDY_REPORT_OUTPUT_DIR}
     COMMAND ${CLANG_TIDY_EXECUTABLE}
-            -p ${CMAKE_BINARY_DIR}
+            -header-filter=.*
+            #-p ${CMAKE_BINARY_DIR} #LU_TODO - Run on filtered files only
             ${ALL_SOURCE_FILES}
             > ${CLANG_TIDY_OUTPUT_FILE} 2>&1
             || true  # Ignore clang-tidy exit status

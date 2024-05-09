@@ -367,9 +367,10 @@ function cmake_build() {
 	local toolchain_file=${4:-"cmake/Toolchain/Linux_x86_64.cmake"} # Default toolchain if not specified
 	local unit_tests=${5:-"OFF"} # Default to no unit tests unless specified
 	local perform_code_analysis=${6:-"OFF"} # Default to no code analysis unless specified
+	local compiler=${7:-"GCC"} # Default to no code analysis unless specified
 
 	echo "Starting CMake build process..."
-	echo "Build type: ${build_type}, Profiler Enabled: ${profiler_enabled}, Toolchain: ${toolchain_file}, Unit Tests: ${unit_tests}, Code Analysis: ${perform_code_analysis}"
+	echo "Build type: ${build_type}, Profiler Enabled: ${profiler_enabled}, Toolchain: ${toolchain_file}, Unit Tests: ${unit_tests}, Code Analysis: ${perform_code_analysis}, Compiler Type: ${compiler}"
 
 	if [[ "${clean_build}" == "true" ]]; then
 		echo "Cleaning build directory before starting build..."
@@ -383,6 +384,7 @@ function cmake_build() {
 		-DCMAKE_TOOLCHAIN_FILE=${toolchain_file} \
 		-DUNIT_TESTS=${unit_tests} \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=${perform_code_analysis} \
+		-DCOMPILER_CHOICE=${compiler} \
 		&& cmake --build build --config ${build_type}"
 
 	# Build and run unit tests if requested

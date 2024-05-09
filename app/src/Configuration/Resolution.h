@@ -15,18 +15,20 @@
  * representations or to numerical width and
  * height pairs.
  */
-namespace Resolution {
+namespace Resolution
+{
 
 /**
  * @enum Setting
  * @brief Enumerates standard screen resolution
  * settings.
  */
-enum class Setting {
-  h600w800,  ///< Resolution of 800x600 pixels.
-  h768w1024, ///< Resolution of 1024x768 pixels.
-  h864w1152, ///< Resolution of 1152x864 pixels.
-  h960w1280  ///< Resolution of 1280x960 pixels.
+enum class Setting
+{
+    h600w800,  ///< Resolution of 800x600 pixels.
+    h768w1024, ///< Resolution of 1024x768 pixels.
+    h864w1152, ///< Resolution of 1152x864 pixels.
+    h960w1280  ///< Resolution of 1280x960 pixels.
 };
 
 /**
@@ -58,5 +60,5 @@ std::string resolutionToStr(Setting resolution);
  * is valid, or an empty optional if the string
  * does not correspond to a known resolution.
  */
-std::optional<Setting> stringToResolution(const std::string &str);
+std::optional<Setting> stringToResolution(const std::string& str);
 } // namespace Resolution

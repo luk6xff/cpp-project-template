@@ -8,7 +8,7 @@
 ## PROJECT BUILD STAGE
 ################################################################################
 ################################################################################
-#FROM ubuntu:22.04 as project-build
+#FROM ubuntu:22.04
 FROM debian:bookworm-slim as project-build
 
 # Set docker image info
@@ -73,6 +73,8 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     python3 \
     python3-pip \
     python3-venv \
+    python3-dev \
+    python3-setuptools \
     # Networking
     curl \
     # Code analysis
@@ -112,24 +114,15 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Install pythom packages
-RUN pip install --no-cache-dir cpplint
-
-# Install Infer
-RUN VERSION=1.1.0; \
-curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
-| sudo tar -C /opt -xJ && \
-sudo ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer
-
-# Install CodeChecker
+# Set environment variables for static analysis tools
 ENV CODE_CHECKER_PATH=/opt/CodeChecker
 ENV BUILD_LOGGER_64_BIT_ONLY=YES
-# Set environment variables to include CodeChecker in the PATH
 ENV PATH="${CODE_CHECKER_PATH}/build/CodeChecker/bin:${PATH}"
 ENV CC_REPO_DIR="${CODE_CHECKER_PATH}"
 # Expose the default port used by CodeChecker server
 EXPOSE 8999
 
+# Install static analysis tools only for x86_64
 RUN if [ "$ARCH" = "-amd64" ]; then \
         curl -sL https://deb.nodesource.com/setup_16.x | bash - \
         && apt-get install -y nodejs \
@@ -137,8 +130,12 @@ RUN if [ "$ARCH" = "-amd64" ]; then \
         && cd ${CODE_CHECKER_PATH} \
         && make package \
         && chmod +x ${CODE_CHECKER_PATH}/build/CodeChecker/bin/report-converter \
+        && pip install --no-cache-dir cpplint \
+        && VERSION=1.1.0; \
+        curl -sSL "https://github.com/facebook/infer/releases/download/v$VERSION/infer-linux64-v$VERSION.tar.xz" \
+        | tar -xJ -C /opt \
+        && ln -s "/opt/infer-linux64-v$VERSION/bin/infer" /usr/local/bin/infer \
     ; fi
-
 
 
 ################################################################################
@@ -149,6 +146,7 @@ RUN apt-get update \
     libxrandr-dev \
     libxcursor-dev \
     libudev-dev \
+    libx11-dev \
     libfreetype-dev \
     libopenal-dev \
     libflac-dev \

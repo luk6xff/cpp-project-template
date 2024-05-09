@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 # Include the necessary modules
 include(CppCheck)
 include(ClangTidy)
-include(Infer)
 include(CppLint)
+#include(Infer)
 
 # Find CodeChecker executable
 find_program(CODECHECKER_EXECUTABLE NAMES CodeChecker)
@@ -83,7 +83,7 @@ add_custom_target(
     DEPENDS process_report_cpplint
             process_report_clang_tidy
             process_report_cppcheck
-            process_report_infer
+            #process_report_infer
     COMMENT "CodeChecker analysis and server starting at: ${CODECHECKER_SERVER_URL}"
     VERBATIM
 )
