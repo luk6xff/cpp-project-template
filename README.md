@@ -7,35 +7,30 @@
 * Release app build
 ```sh
 ./run.sh -a -amd64
-./run.sh -a -arm64
 ```
 
 * Debug app build
 ```sh
 # Debug app build
 ./run.sh -ad -amd64
-./run.sh -ad -arm64
 ```
 
 * Production image build
 ```sh
 # Debug app build
 ./run.sh -pb -amd64
-./run.sh -pb -arm64
 ```
 
 ### Running the container
 * Run Debug/Release app
 ```sh
 ./run.sh -ri -amd64
-./run.sh -ri -arm64
 ```
 
 * Run Debug/Release app under GDB server
 ```sh
 # Debug app build
 ./run.sh -rig -amd64
-./run.sh -rig -arm64
 
 # To connect to the server please run:
 gdb app/build/bin/my_project
@@ -53,13 +48,11 @@ CTRL+C
 * Run production container
 ```sh
 ./run.sh -pr -amd64
-./run.sh -pr -arm64
 ```
 
 * Enter the dev container
 ```sh
 ./run.sh -s -amd64
-./run.sh -s -arm64
 ```
 
 ### Documentation
@@ -71,7 +64,6 @@ firefox ~/Projects/cpp-project-template/app/build/docs/index.html
 ### Static Code analysis
 ```sh
 ./run.sh -ca -amd64
-
 # For CodeChecker server
 ./run.sh -s -amd64
 # Inside the container
