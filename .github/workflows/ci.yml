@@ -1,10 +1,7 @@
 name: C++ Project Template Image Builder
 
-# On every push this script is executed
+# On every pull_request this script is executed
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
