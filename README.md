@@ -1,5 +1,8 @@
 # Dockerized C/CPP build/debug/run environment
 
+## Description
+The build environment presented in this guide will be based on the simple ["Car Shooter" game](app).
+This example application showcases how Docker can be used to streamline the development, testing, and deployment of C/C++ applications, all within a consistent and isolated environment. The process will illustrate how to set up a complete development pipeline using Docker for a game project, ensuring portability and ease of collaboration across different platforms.
 
 ## Usage
 
